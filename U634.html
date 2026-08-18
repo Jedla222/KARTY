@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.7, user-scalable=yes">
     
     <!-- 1. ZDE JE TEN IMPORT: Načte luxusní historické písmo Cinzel z Google Fonts -->
-    <link href="https://googleapis.com" rel="stylesheet">
+    <link rel="preconnect" href="https://googleapis.com">
+<link rel="preconnect" href="https://gstatic.com" crossorigin>
+<link href="https://googleapis.com/css2?family=Cinzel:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
 html, body { overscroll-behavior: contain !important; }
         /* =========================================================================
@@ -418,7 +420,26 @@ html, body { overscroll-behavior: contain !important; }
     94%, 99% { content: "\1F609"; }      /* Mrkající 😉 */
 }
         .type-hlava { background: #C9FFE5; }
-        .type-lízátko { background: var(--pink); color: var(--pink); border-color: var(--pink); }
+	.type-hovno, .type-rhovno { 
+            animation: pohupovaniHovna 3s infinite ease-in-out alternate;
+            transform-origin: bottom center; /* Karta se elegantně pohupuje od spodního okraje */
+        }
+        
+        @keyframes pohupovaniHovna {
+            0% { transform: rotate(-5deg) translateY(0); }
+            100% { transform: rotate(5deg) translateY(-2px); }
+        }
+        .type-lízátko { 
+            background: var(--pink); 
+            color: var(--pink); 
+            border-color: var(--pink); 
+            position: relative;
+            animation: duhoveLizatko 4s infinite linear;
+        }
+        @keyframes duhoveLizatko {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
         .rev { color: black !important; border-color: black !important; }
         
         /* Výchozí vzhled skryté karty bota */
@@ -434,6 +455,13 @@ html, body { overscroll-behavior: contain !important; }
             color: #000000 !important;
             border-color: #ffffff !important;
         }
+.pivni-stopka-aktivni .card.hidden,
+.pivni-stopka-aktivni .card {
+    background: #ff3333 !important;   /* Celá karta bota zčervená */
+    color: #ffffff !important;        /* Číslo s počtem karet bude bílé (nebo černé #000) */
+    border-color: #ff3333 !important; /* Červený okraj karty */
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.9) !important; /* Červená záře kolem karty */
+}
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); align-items: center; justify-content: center; z-index: 10000; }
         .modal-content { 
@@ -567,11 +595,7 @@ html, body { overscroll-behavior: contain !important; }
     filter: invert(17%) sepia(99%) saturate(7390%) hue-rotate(356deg) brightness(94%) contrast(116%);
 }
 
-dialog#vyskakovaci-okno {
-    background: #1a1a30 !important; /* Tmavé vesmírné pozadí okna jako má hra */
-    color: #ffffff !important;      /* Bílý text v celém okně */
-    border: 2px solid #00d2ff;      /* Svítící modrý lem okna */
-}
+
 
 .rules-container { text-align: left; max-height: 70vh; overflow-y: auto; padding-right: 5px; font-family: sans-serif; }
 .rules-title { font-size: 1.5em; font-weight: bold; margin-bottom: 15px; text-align: center; color: #00d2ff; }
@@ -845,8 +869,15 @@ dialog#vyskakovaci-okno {
     
     <!-- TLAČÍTKO VÝMĚNY KARET: Naprosto beze změny -->
     <button id="swap-btn" 
-            onclick="startSwap()" 
-            style="position: absolute; top: -60px; left: 47.5%; transform: translateX(-50%); background: var(--teal); color: white; border: 2px solid white; white-space: nowrap; z-index: 10004 !important;">Výměna Karet</button>
+        onclick="startSwap()" 
+        style="position: absolute; top: -60px; left: 47.5%; transform: translateX(-50%); display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; font-family: 'Cinzel', serif; font-size: 14px; font-weight: bold; color: #f5e6c8; background: linear-gradient(135deg, #4a1c0d 0%, #2b1006 100%); border: 2px solid #c5a059; border-radius: 4px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 4px 6px rgba(0,0,0,0.6); cursor: pointer; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); transition: all 0.2s ease-in-out; white-space: nowrap; z-index: 10004 !important;"
+        onmouseover="this.style.background='linear-gradient(135deg, #5c2411 0%, #3a1609 100%)'; this.style.borderColor='#e5c17a'; this.style.boxShadow='inset 0 0 10px rgba(0,0,0,0.8), 0 0 12px rgba(197, 160, 89, 0.4)';"
+        onmouseout="this.style.background='linear-gradient(135deg, #4a1c0d 0%, #2b1006 100%)'; this.style.borderColor='#c5a059'; this.style.boxShadow='inset 0 0 10px rgba(0,0,0,0.8), 0 4px 6px rgba(0,0,0,0.6)';"
+        class="prekladatelny" 
+        data-cs="🔄 Výměna karet" 
+        data-en="🔄 Swap Cards">
+    🔄 Výměna karet
+</button>
 </div>
 </div>
 <!-- 📜 FIXOVANÝ PANEL HISTORIE (Tlačítka už nikdy neodskrolují nahoru) -->
@@ -876,6 +907,18 @@ dialog#vyskakovaci-okno {
             
             <!-- 6. Jazyková vlaječka -->
             <button id="btnJazyk" onclick="prepniJazykHry()" style="padding: 2px 8px; cursor: pointer; background: #222; border: 1px solid #00d2ff; border-radius: 4px; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 5px rgba(0,210,255,0.2);">🇨🇿</button>
+
+		<!-- 🌟 ZDE JE TO NOVÉ ZLATÉ TLAČÍTKO VLOŽENÉ NA KONEC ŘADY: -->
+    <button id="btnDosimulovat" 
+        onclick="spustDosimulovaniKola()" 
+        style="display: none !important; padding: 2px 8px; min-height: auto; cursor: pointer; font-weight: bold; background: transparent; color: #c5a059; border: none; font-family: 'Cinzel', serif; transition: opacity 0.2s; font-size: 22px; line-height: 1;"
+        class="prekladatelny" 
+        onmouseover="this.style.opacity='0.8'"
+        onmouseout="this.style.opacity='1'"
+        data-cs="⚡⚡" 
+        data-en="⚡⚡">
+  ⚡⚡
+</button>
         </div>
 
 <div style="border-bottom: 1px solid #00d2ff; font-weight: bold; margin-bottom: 8px; color: #00d2ff; text-align: center; text-transform: uppercase; letter-spacing: 1px;">HISTORIE AKCÍ HRÁČŮ</div>
@@ -1501,7 +1544,7 @@ function startSwap(forcedIdx = null) {
     isSwapSelection = true;
     
     // Upravíme text nápovědy podle toho, kdo akci vyvolal
-    document.getElementById('hint-text').innerHTML = `<b style='color:var(--white)'>VÝMĚNA KARET!!! Akci vyvolal: ${players[kdotomastiIdx].name}. VYBER KARTU Z RUKY A POŠLI VPRAVO.</b>`;
+    document.getElementById('hint-text').innerHTML = `<b style='color:var(--white)'>VÝMĚNA KARET!!! ${players[kdotomastiIdx].name} MĚNÍ. VYBER KARTU Z RUKY A POŠLI VPRAVO.</b>`;
     updateUI();
 }
 
@@ -1570,6 +1613,8 @@ function executeFullSwap(playerChosenIdx = 0) {
         pravyIniciatorIdx = window.hracKteryVyvolalSwapIdx;
     }
 
+    let uspesnaVymena = false;
+
     // --- VYHODNOCENÍ PROBĚHNUTÍ VÝMĚNY ---
     if (participants.length > 1) {
         participants.forEach((pData, index) => {
@@ -1580,10 +1625,10 @@ function executeFullSwap(playerChosenIdx = 0) {
 
         // 🚀 OPRAVENO: Do logu se teď zapíše jméno toho, kdo výměnu reálně aktivoval (např. Ríša)!
         addToLog(`<span style="color:#00ff00; font-weight: bold;">🔄 <b>${players[pravyIniciatorIdx].name}</b> PROVEDL VÝMĚNU KARET!</span>`);
-        alert("Výměna dokončena!");
+        uspesnaVymena = true;
     } else {
         addToLog(`⚠️ Výměna se nekonala, u stolu není dostatek hráčů s kartami!`);
-        alert("Výměna se nekonala!");
+        uspesnaVymena = false;
     }
 
     // Uklizení registrů a obnova UI stolu
@@ -1599,12 +1644,48 @@ function executeFullSwap(playerChosenIdx = 0) {
     currentPlayerIdx = pravyIniciatorIdx;
     window.hracKteryVyvolalSwapIdx = null; // Vyčistíme dočasný registr
 
+    // =========================================================================
+    // ⚡ 🗂️ OKAMŽITÉ VIZUÁLNÍ PŘEKRESLENÍ VĚJÍŘŮ KARET NA STOLE
+    // =========================================================================
+    // Vykreslíme nové složení karet v rukách ještě PŘEDTÍM, než vyskočí alert!
+    if (typeof renderTable === "function") renderTable();
     updateUI();
 
-    // Bezpečně a plynule probudíme hru pro správného aktivního hráče na řadě!
-    if (typeof checkTurnStart === "function") {
-        setTimeout(checkTurnStart, 300);
+// 🌟 ZDE JE TEN KLÍČOVÝ FIX PRO CHEATPANEL:
+    // Pokud je cheatpanel zrovna otevřený, okamžitě ho donutíme přegenerovat 
+    // seznam karet botů, takže nové složení uvidíte na obrazovce ihned!
+    if (typeof updateCheatPanel === "function" && typeof cheatPanelOpen !== "undefined" && cheatPanelOpen) {
+        updateCheatPanel();
     }
+
+    // =========================================================================
+    // 🔔 ASYNCHRONNÍ VYVOLÁNÍ ALERTU A ROZJEZDU HRY
+    // =========================================================================
+    // Odložíme vyskočení alertu o 50ms. Prohlížeč díky tomu stihne v klidu 
+    // překreslit vějíře karet na obrazovce, takže změnu uvidíte ihned!
+    setTimeout(() => {
+        if (uspesnaVymena) {
+            alert("Výměna dokončena!");
+        } else {
+            alert("Výměna se nekonala!");
+        }
+
+        // 🌟 Pokud jste jako člověk měl 0 karet a výměnou jste nějakou dostal,
+        // nebo naopak, zkontrolujeme stav urychlovacího tlačítka
+        const btnSimulace = document.getElementById('btnDosimulovat');
+        if (btnSimulace) {
+            if (players[0].out && window.finishedCount <= 3 && window.finishedCount > 0) {
+                btnSimulace.style.setProperty('display', 'inline-flex', 'important');
+            } else {
+                btnSimulace.style.setProperty('display', 'none', 'important');
+            }
+        }
+
+        // Bezpečně a plynule probudíme hru pro správného aktivního hráče na řadě!
+        if (typeof checkTurnStart === "function") {
+            setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 300);
+        }
+    }, 50);
 }
     
 function initGame() {
@@ -1620,6 +1701,20 @@ function initGame() {
     // 🧼 ABSOLUTNÍ OČISTA REGISTRŮ PRO STATISTIKU V KAŽDÉM KOLE
     // =========================================================================
     window.finishedCount = 0; 
+
+// 📱 NEPRŮSTŘELNÝ MOBILNÍ FIX: Vynucené skrytí zlatého tlačítka na startu kola
+const btnSimulace = document.getElementById('btnDosimulovat');
+if (btnSimulace) {
+    // 1. Nastavíme display na none s nejvyšší prioritou
+    btnSimulace.style.setProperty('display', 'none', 'important');
+    
+    // 2. Pro jistotu mobilu natvrdo přepíšeme i klasický CSS atribut style
+    btnSimulace.style.display = 'none';
+    
+    // 3. Pojistka pro mobilní cache: Schováme prvek i pomocí opacity a pointer-events
+    btnSimulace.style.opacity = '0';
+    btnSimulace.style.pointerEvents = 'none';
+}
     
     // 🚀 DEFINITIVNÍ FIX ROZDÁVAJÍCÍHO: 
     // Pokud máme z minulého kola zapsané ID poraženého (loserId), 
@@ -2038,15 +2133,28 @@ function updateUI() {
                 // Sestavíme čisté jméno s body podle paměti turnaje (např. Jedla (0))
                 let cisteJmenoHTML = `${p.name} <span id="score-${p.id}" style="color:var(--yellow)">(${playerScores[p.id]})</span>`;
                 
-                // Pokud má hráč stopku, přilepíme mu hned vedle skóre pulzující červenou tečku!
                 if (p.pivniStopka) {
+                    // 1. Přilepíme pulzující červenou tečku k jménu
                     cisteJmenoHTML += ` <span style="width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; display: inline-block; margin-left: 6px; box-shadow: 0 0 8px #dc3545; animation: blikaniPuntiku 1s infinite alternate;" title="Má pivní stopku!"></span>`;
+                    
+                    // 2. 🛑 ZAČERVENÁNÍ JMÉNA
+                    jmenoSpanAktivni.style.color = '#ff3333';
+                    jmenoSpanAktivni.style.textShadow = '0 0 8px rgba(255, 51, 51, 0.6)';
+                    
+                    // 3. 🛑 ROZSVÍTÍME ČERVENOU KARTU: Přidáme třídu na celý box hráče
+                    area.classList.add('pivni-stopka-aktivni');
+                } else {
+                    // 🟢 NÁVRAT DO NORMÁLU (Když stopku nemá nebo už vypršela)
+                    jmenoSpanAktivni.style.color = ''; 
+                    jmenoSpanAktivni.style.textShadow = '';
+                    
+                    // Odebereme třídu, karta i jméno se vrátí do původního šedého stavu
+                    area.classList.remove('pivni-stopka-aktivni');
                 }
                 
                 // Vstříkneme aktualizovaný text do záhlaví panelu hráče
                 jmenoSpanAktivni.innerHTML = cisteJmenoHTML;
-            }
-            // =========================================================================
+            }     // =========================================================================
 
              // 🚀 TADY VÁŠ KÓD POKRAČUJE BEZE ZMÊNY DÁL (Tento řádek už v souboru máte):
              if (window.beerModeAktivni !== 'ne') {
@@ -2604,6 +2712,68 @@ function showRules() {
             </div>
             <!-- ========================================================================= -->
 
+<div class="deck-schema-section" style="margin-top: 30px;">
+    <div class="deck-schema-title prekladatelny" 
+         data-cs="🗂 HERNÍ TIPY A DALŚÍ PRINCIPY HRY" 
+         data-en="🗂 GAME TIPS AND OTHER GAME PRINCIPLES"
+         style="font-family: 'Cinzel', serif; color: #c5a059; text-align: center; font-size: 1.4em; letter-spacing: 1px; margin-bottom: 15px; border-bottom: 1px double #c5a059; padding-bottom: 8px;">
+        🗂 HERNÍ TIPY A DALŚÍ PRINCIPY HRY
+    </div>
+    <div class="game-tips-container" style="margin-top: 15px; padding: 15px; background: rgba(0, 0, 0, 0.2); border: 1px dashed rgba(197, 160, 89, 0.4); border-radius: 4px; text-align: left; font-family: 'Georgia', serif; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+    
+    <!-- TIP 1: Správné časování Krále -->
+    <div style="margin-bottom: 15px;">
+        <h4 class="prekladatelny" data-cs="👑 Strategické časování Krále" data-en="👑 Strategic King Timing" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 5px 0; font-size: 1.1em;">👑 Strategické časování Krále</h4>
+        <p class="prekladatelny" 
+           data-cs="Karta Krále spouští nebezpečnou asynchronní výzvu, která přelétá stůl. Nepoužívejte ji bezhlavě! Počkejte, až vaši soupeři (boti) vyčerpají své obranné karty (Hlava, Nula), nebo když má hráč po vaší pravici v ruce kriticky málo karet a potřebujete ho zasáhnout lízacím trestem." 
+           data-en="The King card triggers a dangerous asynchronous challenge that flies across the table. Do not use it recklessly! Wait until your opponents (bots) exhaust their defensive cards (Head, Zero), or when the player to your right is critically low on cards and needs to be hit with a drawing penalty." 
+           style="font-size: 0.95em; line-height: 1.5; color: #f4ecd8; margin: 0;">
+            Karta Krále spouští nebezpečnou asynchronní výzvu, která přelétá stůl...
+        </p>
+    </div>
+
+    <!-- TIP 2: Taktika v pivních režimech -->
+    <div style="margin-bottom: 15px;">
+        <h4 class="prekladatelny" data-cs="🍺 Ovládnutí Hospodského speciálu" data-en="🍺 Mastering the Tavern Special" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 5px 0; font-size: 1.1em;">🍺 Ovládnutí Hospodského speciálu</h4>
+        <p class="prekladatelny" 
+           data-cs="Sledujte stav svého půllitru! V režimu STAVAŘ se vyplatí exnout pivo ve chvíli, kdy v herním fondu zbývají ty nejsilnější akční karty (např. Kolotoč či Lízátko), abyste si je zajistili do příštího kola. Naopak v režimu HRAJ si naplánujte exnutí tak, abyste po získání bonusového tahu mohli okamžitě zasadit soupeřům zdrcující kombo." 
+           data-en="Watch your beer percentage closely! In BUILDER mode, it pays off to chug your beer when the most powerful action cards (e.g., Carousel or Lollipop) remain in the pool, securing them for the next round. Conversely, in PLAY mode, time your chug so you can instantly drop a devastating card combo with your bonus turn." 
+           style="font-size: 0.95em; line-height: 1.5; color: #f4ecd8; margin: 0;">
+            Sledujte stav svého půllitru! V režimu STAVAŘ se vyplatí exnout pivo...
+        </p>
+    </div>
+
+    <!-- TIP 3: Jak reagovat na Pivní stopku -->
+    <div style="margin-bottom: 15px;">
+        <h4 class="prekladatelny" data-cs="🛑 Jak přežít Pivní stopku" data-en="🛑 Surviving the Beer Penalty" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 5px 0; font-size: 1.1em;">🛑 Jak přežít Pivní stopku</h4>
+        <p class="prekladatelny" 
+           data-cs="Pokud v režimu STOP obdržíte pivní stopku, vaše jméno i karta zrudnou a váš příští tah beztrestně proletí dál. Pamatujte, že během tohoto trestu jste pro herní engine dočasně 'neviditelní' – Králova výzva vás kompletně přeskočí a nemůžete do ní zasáhnout. Využijte tento čas k analýze karet, které boti vyhazují na stůl." 
+           data-en="If you receive a beer penalty in STOP mode, your name and card will turn red, and the game will skip your next turn. Remember, during this penalty, you are temporarily 'invisible' to the game engine – the King's challenge will skip you entirely, and you cannot intervene. Use this time to analyze the cards bots are discarding." 
+           style="font-size: 0.95em; line-height: 1.5; color: #f4ecd8; margin: 0;">
+            Pokud v režimu STOP obdržíte pivní stopku, vaše jméno i karta zrudnou...
+        </p>
+    </div>
+
+    <!-- TIP 4: Používání urychlovacího tlačítka -->
+    <div style="margin-top: 5px;">
+        <h4 class="prekladatelny" data-cs="⚡ Efektivní využití bleskového dohrání" data-en="⚡ Effective Fast Finish Utilization" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 5px 0; font-size: 1.1em;">⚡ Efektivní využití bleskového dohrání</h4>
+        <p class="prekladatelny" 
+           data-cs="Pokud skončíte na 1., 2. nebo 3. místě a nechce se vám čekat na zdlouhavé tahy zbývajících botů, stiskněte v pravém dolním rohu zlaté blesky ⚡⚡. Hra okamžitě přepne engine do režimu 1ms odezvy. Boti dohrají své karty v přesném pořadí podle platných pravidel a turnaj se bleskově posune do dalšího kola." 
+           data-en="If you finish in 1st, 2nd, or 3rd place and don't want to wait for the slow turns of the remaining bots, press the golden lightning bolts ⚡⚡ in the bottom right corner. The game will instantly switch the engine to a 1ms response mode. Bots will finish their cards in the exact order according to the rules, and the tournament will flash-forward to the next round." 
+           style="font-size: 0.95em; line-height: 1.5; color: #f4ecd8; margin: 0;">
+            Pokud skončíte na 1., 2. nebo 3. místě a nechce se vám čekat na zdlouhavé tahy...
+        </p>
+    </div>
+
+</div>
+    <!-- 🌟 NOVÝ BLOK PRO TEXT POD NADPISEM HERNÍ TIPY -->
+    <p class="prekladatelny" 
+       data-cs="Pravidlo výměny karet: nad odhazovacím balíčkem se vyskytuje tlačítko, které spouští výměnu karet. Tuto výměnu může v jednom herním kole spustit vždy pouze jeden hráč, a to právě ten, který o tuto možnost požádá jako první (jedinný). Výměna probíhá vždy tak, že hráč vybranou kartu posílá proti směru hodinových ručiček na aktivního hráče po pravici a poté pokračuje ten samý hráč, který o výměnu požádal." 
+       data-en="Card exchange rule: there is a button above the discard pile that triggers the exchange of cards. Only one player can initiate this exchange in one game round, and that is the one who requests this option first (the only one). The exchange always takes place in such a way that the player sends the selected card counterclockwise to the active player on the right, and then the same player who requested the exchange continues." 
+       style="font-family: 'Georgia', serif; font-size: 1.05em; line-height: 1.6; color: #f4ecd8; margin: 0 0 20px 0; text-align: left; font-style: italic; opacity: 0.95;">
+        Zde můžete uvést své strategické rady a tipy pro hráče...
+    </p>
+</div>
             <!-- 🍻 HOSPODSKÁ PRAVIDLA (PIVNÍ REŽIMY) 🍻 -->
             <div style="margin-top: 25px; padding: 20px; background: rgba(61, 35, 20, 0.4); border: 1px solid #c5a059; border-radius: 4px; text-align: left; font-family: 'Georgia', serif; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
                 <h3 class="prekladatelny" data-cs="🍺 HOSPODSKÝ SPECIÁL (PIVNÍ REŽIMY)" data-en="🍺 TAVERN SPECIAL (BEER MODES)" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 15px 0; text-align: center; font-size: 1.4em; letter-spacing: 1px; border-bottom: 1px double #c5a059; padding-bottom: 8px;">🍺 HOSPODSKÝ SPECIÁL (PIVNÍ REŽIMY)</h3>
@@ -2967,9 +3137,9 @@ function executeMove(pIdx, cardIdx) {
                     addToLog(`<span style="color: var(--orange, #ff9900); font-weight: bold;">🚨 MÓD TREST: Hráč <b>${players[pIdx].name}</b> okamžitě lízá 1 kartu!</span>`);
                 }
             }
-            else if (aktualniModZapasu === 'hraj') {
-                // Speciální Kombo bonus: Double tah!
+           else if (aktualniModZapasu === 'hraj') {
                 players[pIdx].praveExnul = true; 
+                window.hracSBonusemIdx = pIdx; 
                 addToLog(`<span style="color: #00ffff; font-weight: bold;">🔄 MÓD HRAJ: Hráč <b>${players[pIdx].name}</b> získává okamžitý tah navíc!</span>`);
             }
             else if (aktualniModZapasu === 'stavar' || window.beerModeAktivni === 'stavar') {
@@ -2977,13 +3147,19 @@ function executeMove(pIdx, cardIdx) {
                 if (players[pIdx].isBot) {
                     stavarBotVybiraKartu(pIdx);
                 } else {
+                    window.hraJePauznuta = true; 
                     window.stavarClovekVybira = true; 
+                    
+                    // 🌟 ULOŽÍME SI PARAMETRY VYHAZOVANÉ KARTY DO DOČASNÉ PAMĚTI:
+                    window.stavarZahranaKartaIdx = cardIdx;
+                    window.stavarZahranaKartaHracIdx = pIdx;
+
                     otevriStavarOknoProCloveka(pIdx);
                     updateUI(); 
                 }
             }
 
-            // Na úplný závěr exnutí bezpečně vypneme příznak, pokud zrovna neběží Mód Hraj
+            // ⬇️ ZDE JE TVŮJ PŮVODNÍ ZÁVĚR, KTERÝ V KÓDU PONECHÁŠ BEZE ZMĚNY:
             if (aktualniModZapasu !== 'hraj') {
                 players[pIdx].praveExnul = false;
             }
@@ -2991,7 +3167,8 @@ function executeMove(pIdx, cardIdx) {
         } // Tato závorka zavírá tvůj řádek: if (hrac.praveExnul) {
     } // 👈 4. závorka (zavírá úvodní kontrolu beerModeAktivni !== 'ne')
     
-    if (window.hraJePauznuta) return;
+    if (window.hraJePauznuta) return; 
+    
     const pName = players[pIdx].name;
     const cardName = players[pIdx].hand[cardIdx];
 
@@ -3494,6 +3671,11 @@ function drawAction(pIdx) {
 }
 
 function finishTurn(rev, keep) {
+    // 🚨 ABSOLUTNÍ RUČNÍ BRZDA: Pokud boti vyvolali výměnu karet, 
+    // nepokračujeme dál, dokud lidský hráč neprovede výběr!
+    if (window.hraJePauznuta && isSwapSelection) {
+        return; 
+    }
     prehrajZvukLiznuti();
     
     if (!keep) {
@@ -3509,7 +3691,9 @@ function finishTurn(rev, keep) {
             
             // A) Najdeme přímého aktivního souseda
             let neighborIdx = (currentPlayerIdx + kingDir + numPlayers) % numPlayers;
-            while (players[neighborIdx].out) {
+            
+            // 🛑 FIX PRO MÓD STOP: Pokud má soused pivní stopku, bereme ho jako dočasně vyřazeného!
+            while (players[neighborIdx].out || players[neighborIdx].pivniStopka) {
                 neighborIdx = (neighborIdx + kingDir + numPlayers) % numPlayers;
                 if (neighborIdx === currentPlayerIdx) break;
             }
@@ -3596,13 +3780,23 @@ function finishTurn(rev, keep) {
 
                 // --- VARIANTA 1: Král nesl jen obyčejný volný tah ---
                 if (activeEffect === null) {
-                    // Tah přechází na dalšího hráče v normálním směru hry (použijeme d z horní části funkce)
-                    currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
-                    while (players[currentPlayerIdx].out) {
+                    
+                    // 🌟 NEPRŮSTŘELNÝ FIX PRO MÓD HRAJ: 
+                    // Pokud je aktivní pivní režim 'hraj', tah se NEPOSOUVÁ dál na sousedy,
+                    // ale vrátí se zpět hráči, který má zrovna aktivní bonusový tah!
+                    if (typeof pivniMode !== 'undefined' && pivniMode === 'hraj' && typeof window.hracSBonusemIdx !== 'undefined' && window.hracSBonusemIdx !== null) {
+                        currentPlayerIdx = window.hracSBonusemIdx;
+                        window.hracSBonusemIdx = null; // Vyčistíme registr pro další tahy
+                    } else {
+                        // Standardní chování mimo režim Hraj: Tah přechází na dalšího hráče v normálním směru
                         currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
+                        while (players[currentPlayerIdx].out) {
+                            currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
+                        }
                     }
+                    
                     updateUI();
-                    setTimeout(checkTurnStart, 200);
+                    setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 200);
                     return; 
                 }
 
@@ -3741,6 +3935,10 @@ function finishTurn(rev, keep) {
             
             addToLog(`<span style="color: var(--blue); font-weight: bold;">🏆 <b>${p.name}</b> přežil kolo s 0 kartami, končí na ${window.finishedCount}. místě a získává ${penaltyPoints} trestné body!</span>`);           
             p.out = true;
+
+	if (p.id === 0) { 
+                zkontrolujKonecProCloveka(window.finishedCount);
+            }
 
             // KOLO KONČÍ: Ve hře zbývá poslední prohraný hráč
             if (players.filter(pl => !pl.out).length === 1) {
@@ -3929,8 +4127,8 @@ function finishTurn(rev, keep) {
                 kingChallenge = false;
                 currentGameRound++;
                 
-                setTimeout(initGame, 500);
-                return;
+                setTimeout(initGame, window.rychlaSimulaceAktivni ? 1 : 500);
+return;
             }
 
             // Pokud hráč vyhrál, posuneme index v cyklu while na dalšího aktivního souseda
@@ -4265,7 +4463,8 @@ if (['stop'].includes(clean)) return `Braň se: ${mini(eff, clean==='stop'?'✖'
         // 🚀 OCHRANA PROTI ZBĚSILÉMU ZRYCHLENÍ HRY
         // Pokud lidský hráč (Jedla na indexu 0) vypadl, zpomalíme tahy botů na 1500ms, jinak necháme 1000ms.
         let zpozdeniBota = players[0].out ? 1500 : 1000;
-        setTimeout(botTurn, zpozdeniBota);
+// 🌟 TENTO ŘÁDEK UPRAVTE:
+setTimeout(botTurn, window.rychlaSimulaceAktivni ? 1 : zpozdeniBota);
     }
 }
 
@@ -4299,33 +4498,33 @@ function botTurn() {
     botThinking = true;
 
     // =========================================================================
-    // 👑 JEDINÁ A ABSOLUTNÍ PRIORITA: REAKCE NA KRÁLOVSKOU VÝZVU 👑
+    // 👑 JEDINÁ A ABSOLUTNÍ PRIORITA: REAKCE NA KRÁLOVSKOU VÝZVA 👑
     // =========================================================================
     if (kingChallenge) {
+        // Zjistíme, na jakou kartu Král letí
+        const topCardOnTable = discardStack[discardStack.length - 1] || '';
+        const cleanTopCard = topCardOnTable.replace(/^r/, '').toLowerCase();
+
         // Bot se pokusí v ruce najít Krále, Hlavu (THL) nebo Nulu (T0 / R0)
         let cardIdx = p.hand.findIndex(karta => {
             const base = karta.replace(/^r/, '').toLowerCase();
+            
+            // 🛑 FIX: Pokud letí Královská výzva na SMAJLÍKA, Hlava (THL) se NESMÍ použít jako obrana!
+            if (base === 'hlava' || karta === THL) {
+                if (cleanTopCard === 'smajlík') return false; 
+            }
+            
             return base === 'král' || karta === THL || karta === T0 || karta === R0;
         });
 
         if (cardIdx !== -1) {
-            // PŘÍPAD A: Bot MÁ kartu na obranu -> Odehraje ji!
             botThinking = false; // Reset před dalším krokem
-            
-            // 🚀 OPRAVENO: Voláme původní executeMove se správnými indexy (indexHráče, indexKarty)
             executeMove(currentPlayerIdx, cardIdx);
             return; 
         } else {
-            // =========================================================================
-            // 🚀 BEZTRESTNÉ PROPUŠTĚNÍ PRO BOTA: Nic nelíže, Král ho pouze přelétá!
-            // =========================================================================
-            botThinking = false; // Reset stavu myšlení bota
-            kingChallenge = false; // Vypínáme příznak pro tohoto bota
-            
-            // 🚀 OCHRANA PROTI ZRYCHLENÍ: Pokud člověk (Jedla) už vypadl, dáme přeletu 
-            // delší čas (600ms), jinak necháme plynulé, ale bezpečné zpoždění 300ms.
+            botThinking = false; 
+            kingChallenge = false; 
             let zpozdeniPreletu = players[0].out ? 600 : 300;
-            
             setTimeout(checkTurnStart, zpozdeniPreletu);
             return; 
         }
@@ -4346,7 +4545,6 @@ function botTurn() {
 
         if (shouldSwap && activePlayersWithCards.length > 1) { 
             swapUsed = true;
-            
             if (!players[0].out && players[0].hand.length > 0) {
                 isSwapSelection = true;
                 document.getElementById('hint-text').innerHTML = 
@@ -4368,20 +4566,17 @@ function botTurn() {
     let topC = discardStack[discardStack.length - 1] || '';
     let cardIdx = -1;
 
-    // Globální kontrola: Má někdo u stolu 0 karet?
     let dangerPlayer = players.find(pl => !pl.out && pl.id !== p.id && pl.hand.length === 0);
     let forceDrawForStrategy = false; 
 
     if (dangerPlayer) {
         console.log(`🤖 ${p.name} ví, že ${dangerPlayer.name} má 0 karet! Kontroluje taktické možnosti.`);
         
-        // 1. PRIORITA: Pokud má bot útočnou kartu, klidně ji zahraje
         cardIdx = p.hand.findIndex(c => {
             const b = c.startsWith('r') ? c.substring(1) : c;
             return isValidMove(c) && ['1','2','3','5','šipka'].includes(b);
         });
         
-        // 2. PRIORITA: Bezpečná karta
         if (cardIdx === -1) {
             cardIdx = p.hand.findIndex(c => {
                 const b = c.startsWith('r') ? c.substring(1) : c;
@@ -4397,43 +4592,43 @@ function botTurn() {
             }
         }
     } else {
-        // Volný tah bez efektů -> bot vezme první kartu z ruky
         if (!activeEffect && !kingChallenge && !carouselConstraint) {
             
-            // 🚀 ABSOLUTNÍ FIX PROTI ODEHRÁNÍ HLAVY NA NULU:
-            // Podíváme se, co leží na stole za kartu
+            // Analýza karet na stole a v ruce bota
             const posledniKartaNaStole = discardStack[discardStack.length - 1] || '';
-            const jeNaStoleNula = (posledniKartaNaStole === 'nula' || posledniKartaNaStole === 'rnula' || posledniKartaNaStole === 'T0' || posledniKartaNaStole === 'R0');
+            const cistaNaStole = posledniKartaNaStole.replace(/^r/, '').toLowerCase();
+            const jeNaStoleNula = (cistaNaStole === 'nula' || cistaNaStole === 'rnula' || posledniKartaNaStole === 'T0' || posledniKartaNaStole === 'R0');
+            const jeNaStoleSmajlík = (cistaNaStole === 'smajlík'); // 🌟 PŘIDÁNO: Detekce Smajlíka na stole
             
-            // Podíváme se, co má bot jako první kartu v ruce
             const prvniKartaVRuce = p.hand[0] || '';
-            const jePrvniKartaHlava = (prvniKartaVRuce === 'hlava' || prvniKartaVRuce === 'rhlava' || prvniKartaVRuce === 'hlava.png' || prvniKartaVRuce === THL);
+            const cistaPrvniKarta = prvniKartaVRuce.replace(/^r/, '').toLowerCase();
+            const jePrvniKartaHlava = (cistaPrvniKarta === 'hlava' || prvniKartaVRuce === THL);
 
-            // Pokud má bot jako první kartu Hlavu a na stole leží Nula, ZAKÁŽEME mu vzít index 0 natvrdo!
-            if (jeNaStoleNula && jePrvniKartaHlava) {
-                // Přinutíme bota vyhledat jinou PLATNOU kartu v ruce přes kontrolu pravidel
+            // 🚀 ABSOLUTNÍ FIX PROTI ODEHRÁNÍ HLAVY NA NULU NEBO NA SMAJLÍKA:
+            // Pokud má bot jako první kartu Hlavu a na stole leží Nula NEBO Smajlík, ZAKÁŽEME mu vzít index 0 naslepo!
+            if ((jeNaStoleNula && jePrvniKartaHlava) || (jeNaStoleSmajlík && jePrvniKartaHlava)) {
+                // Přinutíme bota vyhledat skutečně PLATNOU kartu přes isValidMove
                 cardIdx = p.hand.findIndex(c => isValidMove(c));
             } else {
-                // Pokud nehrozí Hlava na Nulu, bot může bezpečně vzít svou první kartu jako dřív
-                cardIdx = 0; 
+                // Pokud hrozba nehrozí, zkontrolujeme ještě pro jistotu, zda je index 0 vůbec legální
+                if (isValidMove(p.hand[0])) {
+                    cardIdx = 0; 
+                } else {
+                    cardIdx = p.hand.findIndex(c => isValidMove(c));
+                }
             }
             
         } else {
-            // Pokud nějaký efekt běžní, vyhledá kartu přes isValidMove
             cardIdx = p.hand.findIndex(c => isValidMove(c));
         }
     }
 
     // Vyhodnocení normálního tahu / líznutí
     if (cardIdx !== -1 && !forceDrawForStrategy) {
-        // 🚀 OPRAVENO: Voláme původní executeMove se správnými indexy
         executeMove(currentPlayerIdx, cardIdx);
     } else {
-        // Nemá co hrát -> Běžné lízání z balíčku
         drawAction(currentPlayerIdx);
     }
-    
-    
 }
 
 const ufoLogTranslations = {
@@ -4475,6 +4670,7 @@ const ufoLogTranslations = {
     "rhovno": "reverse poop",
     "nula": "zero",
     "rnula": "reverse zero",
+    "hlava": "head",
     "smajlík": "smiley",
     "lízátko": "lollipop",
 "⚙️ Kolo č.": "⚙️ Round No.",
@@ -5216,21 +5412,74 @@ function stavarHracZvolilKartu(pIdx, zvolenaKarta) {
 
     // Uložíme kartu do trezoru hráče
     window.stavarTrezory[pIdx].push(zvolenaKarta);
-    addToLog(`🧱 <b>${players[pIdx].name}</b> si na tácek postavil kartu: <b>${zvolenaKarta.toUpperCase()}</b> (Uloženo do příštího kola).`);
+    addToLog(`🧱 <b>${players[pIdx].name}</b> si na tácek postavil kartu: <b>${zvolenaKarta.toUpperCase()}</b>.`);
     
     // 🔓 Zavřeme okno a VYPNEME stavařský zámek
     document.getElementById('action-modal').style.display = 'none';
     window.stavarClovekVybira = false;
     window.hraJePauznuta = false;
 
-    // 🚀 ROZJEZD HRY: Teprve teď, když je okno bezpečně pryč, 
-    // oficiálně probudíme hru a necháme nastoupit bota, který je na řadě!
-    if (typeof checkTurnStart === "function") {
-        checkTurnStart(); 
+    // =========================================================================
+    // 🔥 SKUTEČNÝ FIX: FYZICKÉ VYHOZENÍ KARTY Z RUKY PO ZAVŘENÍ OKNA
+    // =========================================================================
+    // Vytáhneme z paměti, jakou kartu hráč před otevřením okna vyhodil
+    let origCardIdx = window.stavarZahranaKartaIdx;
+    let origPIdx = window.stavarZahranaKartaHracIdx;
+
+    if (origCardIdx !== undefined && origCardIdx !== null && players[origPIdx]) {
+        let hrac = players[origPIdx];
+        
+        if (origCardIdx >= 0 && origCardIdx < hrac.hand.length) {
+            // 1. Vezmeme kartu z ruky
+            let vyhozenaKarta = hrac.hand.splice(origCardIdx, 1)[0];
+            
+            // 2. Položíme ji na odhazovací balíček na stole
+            if (typeof discardStack !== "undefined") {
+                discardStack.push(vyhozenaKarta);
+            }
+
+            addToLog(`🃏 Hráč <b>${hrac.name}</b> odehrál kartu: <span style="color: var(--green); font-weight: bold;"><b>${vyhozenaKarta}</b></span>`);
+
+            // =========================================================================
+            // 🔄 🌟 NEPRŮSTŘELNÝ GLOBÁLNÍ FIX SMĚRU HRY PRO VŠECHNY REVERZNÍ KARTY:
+            // Pokud jste jako Stavař vyhodil jakoukoli šipku NEBO černou reverzní kartu (začíná na 'r'),
+            // musíme v systému okamžitě přetočit směr hry ještě PŘEDTÍM, než se zavolá finishTurn!
+            // =========================================================================
+            const cistaKarta = vyhozenaKarta.replace(/^r/, '').toLowerCase();
+            
+            // Podmínka zkontroluje, zda karta začíná na 'r' (např. r1, r2, ršipka...) NEBO je to textová 'šipka'
+            if (vyhozenaKarta.startsWith('r') || cistaKarta === 'šipka') {
+                if (typeof gameDirection !== 'undefined') {
+                    gameDirection = -gameDirection; // 🔄 Otočíme směr hry (z 1 na -1 nebo naopak)
+                }
+            }
+            
+            // Pojistka pro Královskou výzvu
+            if (cistaKarta === 'král') {
+                kingChallenge = true;
+                activeEffect = null;
+                carouselConstraint = null;
+            }
+            // =========================================================================
+        }
+    }
+
+    // Vyčistíme dočasnou paměť
+    window.stavarZahranaKartaIdx = null;
+    window.stavarZahranaKartaHracIdx = null;
+    // =========================================================================
+
+    if (typeof updateUI === "function") updateUI();
+
+    // Oficiálně a bezpečně ukončíme tah a posuneme hru na dalšího (správného) hráče podle nového směru
+    if (typeof finishTurn === "function") {
+        // 🌟 Předáme aktuální (už opravený) směr hry!
+        let revMove = (typeof gameDirection !== 'undefined') ? (gameDirection === -1) : false;
+        setTimeout(() => { finishTurn(revMove, false); }, window.rychlaSimulaceAktivni ? 1 : 150);
     }
 }
 
-// Funkce pro automatický výběr bota
+// Funkce pro automatický výběr bota (Zůstává beze změny, perfektně pasivní)
 function stavarBotVybiraKartu(pIdx) {
     // 1. Najdeme všechny karty, které ještě ve fondu mají kusy > 0
     let dostupneKarty = Object.keys(window.stavarFondKaret).filter(karta => window.stavarFondKaret[karta] > 0);
@@ -5246,11 +5495,12 @@ function stavarBotVybiraKartu(pIdx) {
     // 2. Ubereme z fondu 60 karet a schováme botovi do jeho tajného trezoru
     window.stavarFondKaret[vybranaKarta]--;
     window.stavarTrezory[pIdx].push(vybranaKarta);
-
     
     // 🚨 ABSOLUTNÍ ZÁKAZ: Žádné setTimeout(botTurn), checkTurnStart() ani finishTurn() zde NESMÍ BÝT!
     // Bot pouze pasivně zapíše kartu a posun tahu nechá na hlavní herní smyčce.
 }
+
+// Funkce pro volbu kombo piva (Zůstává beze změny, perfektně čistící)
 function zvolitKomboPivo(vybranyMod) {
     window.aktualniKomboMod = vybranyMod;
     
@@ -5274,8 +5524,50 @@ function zvolitKomboPivo(vybranyMod) {
     // Překreslíme stůl – karty se v tuto mikrosekundu stoprocentně odemknou k hraní!
     updateUI();
 }
+function zkontrolujKonecProCloveka(poradiHrace) {
+    const btnSimulace = document.getElementById('btnDosimulovat');
+    if (!btnSimulace) return;
 
+    let zbyvajiciHraci = players.filter(pl => !pl.out).length;
 
+    if (poradiHrace >= 1 && poradiHrace <= 3 && zbyvajiciHraci > 1) { 
+        // Zapnutí tlačítka (včetně mobilních vlastností)
+        btnSimulace.style.setProperty('display', 'inline-flex', 'important');
+        btnSimulace.style.opacity = '1';
+        btnSimulace.style.pointerEvents = 'auto';
+    } else {
+        // Vypnutí tlačítka
+        btnSimulace.style.setProperty('display', 'none', 'important');
+        btnSimulace.style.opacity = '0';
+        btnSimulace.style.pointerEvents = 'none';
+    }
+}
+
+function spustDosimulovaniKola() {
+    // 1. Skryjeme tlačítko (včetně mobilních pojistek pro jistotu)
+    const btnSimulace = document.getElementById('btnDosimulovat');
+    if (btnSimulace) {
+        btnSimulace.style.setProperty('display', 'none', 'important');
+        btnSimulace.style.opacity = '0';
+        btnSimulace.style.pointerEvents = 'none';
+    }
+    
+    addToLog(`<span style="color: #c5a059; font-weight: bold;">⚡ Aktivováno zrychlené dosimulování kola. Boti dohrávají okamžitě...</span>`);
+
+    // 2. Zapneme globální příznak zrychlené simulace
+    window.rychlaSimulaceAktivni = true;
+
+    // 3. Shodíme případné zámky, které by mohly hru blokovat
+    botThinking = false;
+    window.hraJePauznuta = false;
+
+    // 4. Bezpečně odpálíme tah aktuálního bota podle platných pravidel hry
+    if (typeof checkTurnStart === "function") {
+        checkTurnStart();
+    } else if (typeof botTurn === "function") {
+        botTurn();
+    }
+}
 
 </script>
 </body>
