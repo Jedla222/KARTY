@@ -126,6 +126,95 @@ html, body { overscroll-behavior: contain !important; }
     text-shadow: none;
     box-shadow: 0 0 8px rgba(145, 124, 70, 0.6);
 }
+
+/* --- 🍺 GLOBÁLNÍ PIVNÍ KURZOR PRO CELÝ TURNAJ 🍺 --- */
+html, body, .table, .player-area, .center-area, *, select, option, input, label {
+    /* 🌟 PŮLLITR PRO VŠECHNY PRVKY VČETNĚ POLOŽEK V MENU */
+    cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48dGV4dCB5PSIyNiIgZm9udC1zaXplPSIyNCI+JiMxMjc4NjY7PC90ZXh0Pjwvc3ZnPg=="), auto !important;
+}
+
+button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, input, label {
+    /* 🌟 PŮLLITR JAKO UKAZATEL PRO KLIKÁNÍ UVNITŘ NABÍDEK */
+    cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48dGV4dCB5PSIyNiIgZm9udC1zaXplPSIyNCI+JiMxMjc4NjY7PC90ZXh0Pjwvc3ZnPg=="), pointer !important;
+}
+
+
+/* --- HOSPODSKÝ DÝM --- */
+.hospodsky-dym-kontejner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Aby kouř nebránil klikání na karty! */
+    overflow: hidden;
+    z-index: 1 !important; /* Vytlačíme kouř bezpečně nad plátno stolu */
+    opacity: 0.99; /* Zvýšeno z 0.18 na 0.35 pro jasnou viditelnost */
+}
+
+.oblak-dymu {
+    position: absolute;
+    /* Oprava gradientu: Přidána neprůstřelná bílo-šedá barva s mlžným efektem */
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(220,220,220,0.2) 40%, rgba(0,0,0,0) 70%) !important;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(50px); /* Silnější rozmazání do mlžného oparu */
+    animation: plynutiDymu 35s infinite ease-in-out;
+}
+
+/* Fix pro polohování, aby oblaky nebyly schované mimo viditelnou plochu */
+.dym-1 { width: 650px; height: 550px; left: -15%; top: 5%;   animation-duration: 12s; animation-delay: 0s; }
+.dym-2 { width: 750px; height: 650px; right: -20%; top: 25%; animation-duration: 16s; animation-delay: -3s; }
+.dym-3 { width: 600px; height: 500px; left: 20%; bottom: -15%; animation-duration: 14s; animation-delay: -5s; }
+
+/* 🔥 ZESÍLENÁ ANIMACE: Oblaky teď divoce cestují napříč suknem stolu */
+@keyframes plynutiDymu {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 0.3;
+    }
+    25% {
+        /* První oblak odcestuje výrazně doprava a dolů */
+        transform: translate(250px, 150px) scale(1.2) rotate(90deg);
+        opacity: 0.7;
+    }
+    50% {
+        /* V půlce animace se kouř prožene středem stolu a zředí se */
+        transform: translate(400px, -100px) scale(0.8) rotate(180deg);
+        opacity: 0.2;
+    }
+    75% {
+        /* Návratová křivka spodem stolu obloukem zpět */
+        transform: translate(-150px, 200px) scale(1.3) rotate(270deg);
+        opacity: 0.6;
+    }
+    100% {
+        /* Perfektní navázání smyčky na začátek */
+        transform: translate(0, 0) scale(1) rotate(360deg);
+        opacity: 0.3;
+    }
+}
+
+/* --- HOSPODSKÉ MOUCHY --- */
+.hospodska-moucha {
+    position: absolute;
+    font-size: 14px;
+    z-index: 999999 !important; /* Moucha léta nad vším */
+    pointer-events: none; /* Aby moucha nebránila klikání na karty! */
+    transition: left 1.5s ease-in-out, top 1.5s ease-in-out, transform 0.3s ease-in-out;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.4));
+}
+
+/* Jemné bzučení / kmitání křídel na místě */
+@keyframes bzuceniMouchy {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    20% { transform: translate(-1px, 1px) scale(1.05); }
+    40% { transform: translate(1px, -1px) scale(0.95); }
+    60% { transform: translate(-1px, -1px) scale(1); }
+    80% { transform: translate(1px, 1px) scale(1.05); }
+}
+.moucha-bzuci {
+    animation: bzuceniMouchy 0.1s infinite;
 }
         
         /* Luxusní karetní sukno s masivním borderem stolu */
@@ -846,6 +935,13 @@ html, body { overscroll-behavior: contain !important; }
 
 
 <div class="table">
+
+<!-- 💨 HOSPODSKÝ DÝM: Tři vrstvy kouře, které se líně prolínají nad suknem -->
+    <div class="hospodsky-dym-kontejner">
+        <div class="oblak-dymu dym-1"></div>
+        <div class="oblak-dymu dym-2"></div>
+        <div class="oblak-dymu dym-3"></div>
+    </div>
     	<div id="p-area-0" class="player-area p0"></div>
     	<div id="p-area-1" class="player-area p1"></div>
     	<div id="p-area-2" class="player-area p2"></div>
@@ -1700,7 +1796,10 @@ function initGame() {
     // =========================================================================
     // 🧼 ABSOLUTNÍ OČISTA REGISTRŮ PRO STATISTIKU V KAŽDÉM KOLE
     // =========================================================================
-    window.finishedCount = 0; 
+    window.finishedCount = 0;
+
+// 🪰 PLÁCAČKA NA ZAMRZLÝ HMYZ: Kompletně vyčistíme stůl od havěti z minulého kola
+    document.querySelectorAll('.hospodska-moucha').forEach(el => el.remove()); 
 
 // 📱 NEPRŮSTŘELNÝ MOBILNÍ FIX: Vynucené skrytí zlatého tlačítka na startu kola
 const btnSimulace = document.getElementById('btnDosimulovat');
@@ -2765,15 +2864,18 @@ function showRules() {
         </p>
     </div>
 
-</div>
-    <!-- 🌟 NOVÝ BLOK PRO TEXT POD NADPISEM HERNÍ TIPY -->
-    <p class="prekladatelny" 
-       data-cs="Pravidlo výměny karet: nad odhazovacím balíčkem se vyskytuje tlačítko, které spouští výměnu karet. Tuto výměnu může v jednom herním kole spustit vždy pouze jeden hráč, a to právě ten, který o tuto možnost požádá jako první (jedinný). Výměna probíhá vždy tak, že hráč vybranou kartu posílá proti směru hodinových ručiček na aktivního hráče po pravici a poté pokračuje ten samý hráč, který o výměnu požádal." 
+<!-- TIP 5: Výměna karet -->
+    <div style="margin-top: 5px;">
+        <h4 class="prekladatelny" data-cs="🔄 Výměna karet" data-en="🔄 Swap cards" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 5px 0; font-size: 1.1em;">🔄 Výměna karet</h4>
+        <p class="prekladatelny" 
+           data-cs="Pravidlo výměny karet: nad odhazovacím balíčkem se vyskytuje tlačítko, které spouští výměnu karet. Tuto výměnu může v jednom herním kole spustit vždy pouze jeden hráč, a to právě ten, který o tuto možnost požádá jako první (jedinný). Výměna probíhá vždy tak, že hráč vybranou kartu posílá proti směru hodinových ručiček na aktivního hráče po pravici a poté pokračuje ten samý hráč, který o výměnu požádal." 
        data-en="Card exchange rule: there is a button above the discard pile that triggers the exchange of cards. Only one player can initiate this exchange in one game round, and that is the one who requests this option first (the only one). The exchange always takes place in such a way that the player sends the selected card counterclockwise to the active player on the right, and then the same player who requested the exchange continues." 
-       style="font-family: 'Georgia', serif; font-size: 1.05em; line-height: 1.6; color: #f4ecd8; margin: 0 0 20px 0; text-align: left; font-style: italic; opacity: 0.95;">
-        Zde můžete uvést své strategické rady a tipy pro hráče...
-    </p>
-</div>
+           style="font-size: 0.95em; line-height: 1.5; color: #f4ecd8; margin: 0;">
+            Pokud skončíte na 1., 2. nebo 3. místě a nechce se vám čekat na zdlouhavé tahy...
+        </p>
+    </div>
+
+
             <!-- 🍻 HOSPODSKÁ PRAVIDLA (PIVNÍ REŽIMY) 🍻 -->
             <div style="margin-top: 25px; padding: 20px; background: rgba(61, 35, 20, 0.4); border: 1px solid #c5a059; border-radius: 4px; text-align: left; font-family: 'Georgia', serif; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
                 <h3 class="prekladatelny" data-cs="🍺 HOSPODSKÝ SPECIÁL (PIVNÍ REŽIMY)" data-en="🍺 TAVERN SPECIAL (BEER MODES)" style="font-family: 'Cinzel', serif; color: #c5a059; margin: 0 0 15px 0; text-align: center; font-size: 1.4em; letter-spacing: 1px; border-bottom: 1px double #c5a059; padding-bottom: 8px;">🍺 HOSPODSKÝ SPECIÁL (PIVNÍ REŽIMY)</h3>
@@ -5414,68 +5516,33 @@ function stavarHracZvolilKartu(pIdx, zvolenaKarta) {
     window.stavarTrezory[pIdx].push(zvolenaKarta);
     addToLog(`🧱 <b>${players[pIdx].name}</b> si na tácek postavil kartu: <b>${zvolenaKarta.toUpperCase()}</b>.`);
     
-    // 🔓 Zavřeme okno a VYPNEME stavařský zámek
+    // 🔓 Zavřeme okno a VYPNEME stavařské zámky
     document.getElementById('action-modal').style.display = 'none';
     window.stavarClovekVybira = false;
     window.hraJePauznuta = false;
 
-    // =========================================================================
-    // 🔥 SKUTEČNÝ FIX: FYZICKÉ VYHOZENÍ KARTY Z RUKY PO ZAVŘENÍ OKNA
-    // =========================================================================
-    // Vytáhneme z paměti, jakou kartu hráč před otevřením okna vyhodil
+    // Vytáhneme z paměti indexy původně vyhazované karty
     let origCardIdx = window.stavarZahranaKartaIdx;
     let origPIdx = window.stavarZahranaKartaHracIdx;
 
-    if (origCardIdx !== undefined && origCardIdx !== null && players[origPIdx]) {
-        let hrac = players[origPIdx];
-        
-        if (origCardIdx >= 0 && origCardIdx < hrac.hand.length) {
-            // 1. Vezmeme kartu z ruky
-            let vyhozenaKarta = hrac.hand.splice(origCardIdx, 1)[0];
-            
-            // 2. Položíme ji na odhazovací balíček na stole
-            if (typeof discardStack !== "undefined") {
-                discardStack.push(vyhozenaKarta);
-            }
-
-            addToLog(`🃏 Hráč <b>${hrac.name}</b> odehrál kartu: <span style="color: var(--green); font-weight: bold;"><b>${vyhozenaKarta}</b></span>`);
-
-            // =========================================================================
-            // 🔄 🌟 NEPRŮSTŘELNÝ GLOBÁLNÍ FIX SMĚRU HRY PRO VŠECHNY REVERZNÍ KARTY:
-            // Pokud jste jako Stavař vyhodil jakoukoli šipku NEBO černou reverzní kartu (začíná na 'r'),
-            // musíme v systému okamžitě přetočit směr hry ještě PŘEDTÍM, než se zavolá finishTurn!
-            // =========================================================================
-            const cistaKarta = vyhozenaKarta.replace(/^r/, '').toLowerCase();
-            
-            // Podmínka zkontroluje, zda karta začíná na 'r' (např. r1, r2, ršipka...) NEBO je to textová 'šipka'
-            if (vyhozenaKarta.startsWith('r') || cistaKarta === 'šipka') {
-                if (typeof gameDirection !== 'undefined') {
-                    gameDirection = -gameDirection; // 🔄 Otočíme směr hry (z 1 na -1 nebo naopak)
-                }
-            }
-            
-            // Pojistka pro Královskou výzvu
-            if (cistaKarta === 'král') {
-                kingChallenge = true;
-                activeEffect = null;
-                carouselConstraint = null;
-            }
-            // =========================================================================
-        }
-    }
-
-    // Vyčistíme dočasnou paměť
+    // Vyčistíme dočasnou stavařskou paměť
     window.stavarZahranaKartaIdx = null;
     window.stavarZahranaKartaHracIdx = null;
-    // =========================================================================
 
     if (typeof updateUI === "function") updateUI();
 
-    // Oficiálně a bezpečně ukončíme tah a posuneme hru na dalšího (správného) hráče podle nového směru
-    if (typeof finishTurn === "function") {
-        // 🌟 Předáme aktuální (už opravený) směr hry!
-        let revMove = (typeof gameDirection !== 'undefined') ? (gameDirection === -1) : false;
-        setTimeout(() => { finishTurn(revMove, false); }, window.rychlaSimulaceAktivni ? 1 : 150);
+    // =========================================================================
+    // 🚀 SKUTEČNÝ NEPRŮSTŘELNÝ ROZJEZD MOTORU HRY:
+    // Místo finishTurn zavoláme znovu executeMove se zachovanými indexy!
+    // Engine díky tomu kartu normálně vyhodí, smaže z ruky a uplatní veškerá
+    // vaše původní pravidla pro otáčení směrů u černých čísel i šipek.
+    // =========================================================================
+    if (origCardIdx !== undefined && origCardIdx !== null && players[origPIdx]) {
+        setTimeout(() => {
+            if (typeof executeMove === "function") {
+                executeMove(origPIdx, origCardIdx);
+            }
+        }, window.rychlaSimulaceAktivni ? 1 : 150);
     }
 }
 
@@ -5568,6 +5635,106 @@ function spustDosimulovaniKola() {
         botTurn();
     }
 }
+
+const DRUHY_HMYZU = [
+    { symbol: '🪰', nazev: 'moucha', velikost: '25px', rychlost: 1500, posedavost: 2000, sanceNaSednuti: 0.5, typ: 'letavec' },
+    { symbol: '🐝', nazev: 'srsen', velikost: '50px', rychlost: 900, posedavost: 800, sanceNaSednuti: 0.2, typ: 'letavec' },
+    { symbol: '🦟', nazev: 'komar', velikost: '25px', rychlost: 1100, posedavost: 1200, sanceNaSednuti: 0.4, typ: 'letavec' },
+    { symbol: '🦋', nazev: 'mol', velikost: '25px', rychlost: 2200, posedavost: 4000, sanceNaSednuti: 0.7, typ: 'letavec' },
+    { symbol: '🪳', nazev: 'svab', velikost: '50px', rychlost: 700, posedavost: 1500, sanceNaSednuti: 0.8, typ: 'lezec' } // 🌟 NOVÝ ŠVÁB!
+];
+
+function vypustHospodskyHmyz() {
+    if (window.rychlaSimulaceAktivni) return;
+
+    const druh = DRUHY_HMYZU[Math.floor(Math.random() * DRUHY_HMYZU.length)];
+    const potvůrka = document.createElement('div');
+    
+    // Šváb nebude mít bzučící animaci mouchy, vrtí se sám při pohybu
+    potvůrka.className = 'hospodska-moucha' + (druh.typ === 'letavec' ? ' moucha-bzuci' : '');
+    potvůrka.innerHTML = druh.symbol;
+    
+    potvůrka.style.fontSize = druh.velikost;
+    potvůrka.style.transition = `left ${druh.rychlost}ms ease-in-out, top ${druh.rychlost}ms ease-in-out, transform 0.2s ease-in-out`;
+    
+    // Výchozí pozice: Vleze na stůl z náhodného okraje
+    let startZleva = Math.random() < 0.5;
+    potvůrka.style.left = startZleva ? '-50px' : (window.innerWidth + 50) + 'px';
+    potvůrka.style.top = Math.random() * window.innerHeight + 'px';
+    document.body.appendChild(potvůrka);
+
+    let pocetPreletu = Math.floor(Math.random() * 4) + 4; // 4 až 7 rychlých přeběhů/přeletů
+
+    function letNaDalsiMisto() {
+        if (pocetPreletu <= 0) {
+            // Havěť opouští krčmu
+            potvůrka.style.left = (Math.random() < 0.5 ? -50 : window.innerWidth + 50) + 'px';
+            potvůrka.style.top = Math.random() * window.innerHeight + 'px';
+            setTimeout(() => { potvůrka.remove(); }, druh.rychlost + 500);
+            return;
+        }
+
+        pocetPreletu--;
+
+        let cilLeft = 0; 
+        let cilTop = 0;
+        let sedneSi = Math.random() < druh.sanceNaSednuti;
+        
+        const vsechnyKarty = document.querySelectorAll('.card:not(.hidden), .player-box, .player-area');
+        
+        if (sedneSi && vsechnyKarty.length > 0) {
+            const prvek = vsechnyKarty[Math.floor(Math.random() * vsechnyKarty.length)];
+            const rect = prvek.getBoundingClientRect();
+            cilLeft = rect.left + (Math.random() * (rect.width - 20)) + window.scrollX;
+            cilTop = rect.top + (Math.random() * (rect.height - 20)) + window.scrollY;
+        } else {
+            cilLeft = Math.random() * (window.innerWidth - 120) + 60;
+            cilTop = Math.random() * (window.innerHeight - 120) + 60;
+        }
+
+        // --- 📐 NATÁČENÍ A ROTACE PODLE SMĚRU POHYBU ---
+        let aktLeft = parseFloat(potvůrka.style.left) || 0;
+        let aktTop = parseFloat(potvůrka.style.top) || 0;
+        
+        if (druh.typ === 'lezec') {
+            // Šváb se realisticky otočí přesně čumákem tam, kam zmateně běží
+            let úhel = Math.atan2(cilTop - aktTop, cilLeft - aktLeft) * (180 / Math.PI);
+            // Emoji švába 🪳 míří standardně nahoru/vpravo, přidáme korekci úhlu (cca 90 nebo 45 stupňů)
+            potvůrka.style.transform = `rotate(${úhel + 90}deg)`;
+        } else {
+            // Letavci se klasicky zrcadlí vlevo/vpravo
+            potvůrka.style.transform = (cilLeft < aktLeft) ? 'scaleX(-1)' : 'scaleX(1)';
+        }
+        
+        potvůrka.style.left = cilLeft + 'px';
+        potvůrka.style.top = cilTop + 'px';
+
+        // Posedávání/Zastavení na místě
+        let casNaPosedavani = Math.random() * druh.posedavost + (druh.posedavost / 2); 
+        setTimeout(letNaDalsiMisto, druh.rychlost + casNaPosedavani);
+    }
+
+    setTimeout(letNaDalsiMisto, 100);
+}
+
+function SpustHmyziSmycku() {
+    // Generuje náhodný čas mezi 12 a 24 vteřinami pro další líhnutí
+    let nahodnyCas = Math.random() * 5000 + 5000; 
+    
+    setTimeout(() => {
+        // Kontrola: Pokud neběží zrychlená simulace a na stole jsou max 3 hmyzáci
+        if (!window.rychlaSimulaceAktivni && document.querySelectorAll('.hospodska-moucha').length < 4) {
+            if (Math.random() < 0.99) { 
+                vypustHospodskyHmyz();
+            }
+        }
+        // Smyčka zavolá sama sebe znovu -> neumře při restartu kola
+        SpustHmyziSmycku();
+    }, nahodnyCas);
+}
+
+// První start líhně po načtení stránky
+SpustHmyziSmycku();
 
 </script>
 </body>
