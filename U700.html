@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>UFOKARTY - FIX</title>
-    <meta name="viewport" content="width=device-width, initial-scale=0.7, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
     
     <!-- 1. ZDE JE TEN IMPORT: Načte luxusní historické písmo Cinzel z Google Fonts -->
     <link rel="preconnect" href="https://googleapis.com">
@@ -127,15 +127,29 @@ html, body { overscroll-behavior: contain !important; }
     box-shadow: 0 0 8px rgba(145, 124, 70, 0.6);
 }
 
-/* --- 🍺 GLOBÁLNÍ PIVNÍ KURZOR PRO CELÝ TURNAJ 🍺 --- */
-html, body, .table, .player-area, .center-area, *, select, option, input, label {
-    /* 🌟 PŮLLITR PRO VŠECHNY PRVKY VČETNĚ POLOŽEK V MENU */
-    cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48dGV4dCB5PSIyNiIgZm9udC1zaXplPSIyNCI+JiMxMjc4NjY7PC90ZXh0Pjwvc3ZnPg=="), auto !important;
+.letajici-karta-duch {
+    position: fixed;
+    width: 65px;  /* Přizpůsobte podle běžné velikosti vašich karet */
+    height: 95px;
+    background: linear-gradient(135deg, #422615 0%, #1e1008 100%) !important;
+    border: 2px solid #c5a059 !important;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6), inset 0 0 10px rgba(0,0,0,0.5);
+    z-index: 9999999 !important; /* Letí nad úplně vším */
+    pointer-events: none; /* Aby neblokovala klikání prstem */
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); /* Plynulý dojezd s mírným zpomalením */
 }
 
-button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, input, label {
-    /* 🌟 PŮLLITR JAKO UKAZATEL PRO KLIKÁNÍ UVNITŘ NABÍDEK */
-    cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48dGV4dCB5PSIyNiIgZm9udC1zaXplPSIyNCI+JiMxMjc4NjY7PC90ZXh0Pjwvc3ZnPg=="), pointer !important;
+/* --- 🍺 GLOBÁLNÍ PIVNÍ KURZOR (Base64 FIX - POUZE PRO PC S MYŠÍ) 🍺 --- */
+@media (hover: hover) and (pointer: fine) {
+    /* 🌟 Hvězdička byla vymazána! Kurzory se aplikují pouze na konkrétní herní vrstvy */
+    html, body, .table, .player-area, .center-area, select, option, label {
+        cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48dGV4dCB5PSIyNiIgZm9udC1zaXplPSIyNCI+JiMxMjc4NjY7PC90ZXh0Pjwvc3ZnPg==") 0 0, auto !important;
+    }
+
+    button, .card, .clickable, #status-bar button, .oblak-dymu, a, input {
+        cursor: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48dGV4dCB5PSIyNiIgZm9udC1zaXplPSIyNCI+JiMxMjc4NjY7PC90ZXh0Pjwvc3ZnPg==") 0 0, pointer !important;
+    }
 }
 
 
@@ -146,10 +160,15 @@ button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, i
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none; /* Aby kouř nebránil klikání na karty! */
+    pointer-events: none;
     overflow: hidden;
-    z-index: 1 !important; /* Vytlačíme kouř bezpečně nad plátno stolu */
-    opacity: 0.99; /* Zvýšeno z 0.18 na 0.35 pro jasnou viditelnost */
+    z-index: 1 !important;
+    opacity: 0.35;
+    
+    /* 🌟 MOBILNÍ ZÁMEK: Tyto 3 řádky vrátí mobilnímu zobrazení původní milimetrovou stabilitu */
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    transform: translate3d(0,0,0); /* Vynutí plynulé vykreslování přes grafický čip mobilu */
 }
 
 .oblak-dymu {
@@ -197,11 +216,11 @@ button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, i
 
 /* --- HOSPODSKÉ MOUCHY --- */
 .hospodska-moucha {
-    position: absolute;
+    position: absolute !important; /* 🌟 Pevně spjato s plátnem stolu, přesně jako dým */
     font-size: 14px;
-    z-index: 999999 !important; /* Moucha léta nad vším */
-    pointer-events: none; /* Aby moucha nebránila klikání na karty! */
-    transition: left 1.5s ease-in-out, top 1.5s ease-in-out, transform 0.3s ease-in-out;
+    z-index: 9999999 !important; 
+    pointer-events: none; 
+    transition: left 1.2s ease-in-out, top 1.2s ease-in-out, transform 0.2s ease-in-out;
     filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.4));
 }
 
@@ -223,14 +242,16 @@ button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, i
     width: 100%; 
     height: 100vh; 
     height: 100dvh; 
-    /* PŮVODNÍ ZÁŘIVÝ GRADIENT HRY: */
     background: radial-gradient(circle, #2d5a27 0%, #112b0e 80%) !important; 
-    
-    /* Elegantní masivní dřevěný rám okolo stolu zůstává */
     border: 16px solid #2e1a0f !important; 
     box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
     overflow: hidden; 
     box-sizing: border-box;
+
+    /* 🌟 ABSOLUTNÍ MOBILNÍ POJISTKA PROTI KOUŘI A BROUKŮM: */
+    /* Zamkne herní stůl přesně na rozměry displeje a zakáže jakékoliv cukání do stran! */
+    max-width: 100vw !important;
+    max-height: 100vh !important;
 }
 
 /* Jemný vodoznak loga uprostřed (upraveno, aby zářil na původním plátně) */
@@ -321,91 +342,115 @@ button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, i
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 @media (max-width: 768px) {
-            body, html {
-                overflow-x: hidden !important;
-                overflow-y: auto !important; /* Povolí scrollování dolů k panelům */
-            }
+    /* 🔒 MOBILNÍ ZÁMEK: Absolutní konec scrollování stránky nahoru a dolů */
+    body, html {
+        overflow-x: hidden !important;
+        overflow-y: hidden !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+    }
 
-            /* ⏱️ Ukazatele času a karet: Roztáhnuto na 100 % bez bočních limitů */
-            #game-stats {
-    position: fixed !important;      
-    top: auto !important;
-    left: 0 !important;
+    /* 🧱 HERNÍ STŮL: Vracíme tvůj kompletní původní kruhový engine stolu!
+       Pouze ho jemným záporným okrajovým posunem poponeseme o kousek výš.
+       Tím všichni boti i balíčky zůstanou na svých originálních místech, ale nebudou utopení dole. */
+    .table {
+        position: relative !important;
+        margin-top: -65px !important; /* 🚀 Jemně vytáhne celou původní scénu stolu nahoru */
+        height: 100vh !important;
+        height: 100dvh !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ⏱️ UKAZATELE ČASU A KARET (Statistiky):
+       Vyřízneme to obří černé hluché místo! Panel se elegantně usadí navrch 
+       hned pod spodní hranu status baru, takže ti nikde nic nezavazí. */
+    #game-stats {
+        position: fixed !important;      
+        top: 80px !important; /* Pevně pod mosaznou lištou */
+        left: 0 !important;
+        width: 100% !important;                    
+        max-width: 100% !important;      
+        height: 35px !important; 
+        margin: 0 !important; 
+        padding: 0 10px !important;
+        box-sizing: border-box !important;
+        font-size: 0.82em !important;    
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: space-around !important;
+        background: rgba(36, 20, 11, 0.95) !important;
+        border-left: none !important;    
+        border-right: none !important;
+        border-bottom: none !important;
+        border-radius: 0 !important;     
+        z-index: 99999 !important;     
+    }
+
+    /* 📜 PANEL HISTORIE A KARET BOTŮ (Vějíř na spodku):
+       Zůstává na svém pevném místě o výšce 300px přesně tak, jak ti vyhovuje,
+       ale díky posunu celého stolu nahoru už do něj karty nepropadnou. */
+    #game-log {
+        position: fixed !important;   
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;          
+        max-width: 100% !important;      
+        height: 250px !important; 
+        margin: 0 !important;   
+        padding: 5px !important;
+        border-left: none !important;    
+        border-right: none !important;
+        border-bottom: none !important;
+        border-radius: 0 !important;     
+        box-sizing: border-box !important;
+        z-index: 99999 !important; 
+        background: rgba(20, 10, 5, 0.9) !important;
+        overflow-y: auto !important;
+    }
+
+    /* 🛠️ ŘADA VELKÝCH TLAČÍTEK V LOGU: 
+       Komprimujeme mezery, aby zmizely volné černé řádky pod tlačítky nápovědy */
+    #log-buttons-container {
+        display: flex !important;
+        flex-wrap: wrap !important;      
+        justify-content: center !important;
+        gap: 6px !important;             
+        margin: 5px 0 !important;  
+        padding: 0 !important;
+    }
     
-    /* Bezpečné nastavení šířky pro box-sizing */
-    width: auto !important;                    
-    max-width: 100% !important;      
-    box-sizing: border-box !important;
+    #log-buttons-container button {
+        font-size: 22px !important;      
+        padding: 8px 12px !important;   
+        min-width: 45px !important;      
+        min-height: 45px !important;     
+        display: inline-flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        border-radius: 6px !important;   
+    }
+
+    #log-buttons-container button img {
+        width: 26px !important;          
+        height: 26px !important;         
+        object-fit: contain !important;
+    }
+#action-modal {
+        position: fixed !important;
+        align-items: center !important; /* Vycentrování na střed */
+        justify-content: center !important;
+    }
     
-    /* Vaše původní přesné umístění na stránce */
-    margin: 1010px 0 270px 0 !important; 
-    
-    /* Původní velikost písma a zarovnání */
-    font-size: 0.82em !important;    
-    justify-content: space-around !important;
-    border-left: none !important;    
-                border-right: none !important;
-                border-bottom: none !important;
-                border-radius: 0 !important;     /* Vynulujeme zaoblení hran */
-                box-sizing: border-box !important;
-                z-index: 99999 !important;     
+    /* Zacílíme na samotné vnitřní okno uvnitř modal kontejneru */
+    #action-modal > div, #action-modal .modal-content, dialog#vyskakovaci-okno {
+        /* 🚀 POSUN NAHORU: Přidáme záporný posun na ose Y, 
+           který okno čistě a bezpečně vyfoukne o 40 pixelů nahoru */
+        transform: translateY(-60px) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important;
+    }
+
 }
-
-            /* 📜 Panel historie akcí: Roztáhnuto na 100 % bez bočních limitů */
-            #game-log {
-                /* 🎯 ABSOLUTNÍ FIX: Změněno z relative na fixed! 
-                   Tím se panel odpoutá od stolu a chytí se přímo okrajů displeje telefonu! */
-                position: fixed !important;   
-                
-                /* Přibijeme panel k úplnému spodku mobilní obrazovky */
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                
-                /* Šířku necháme spočítat automaticky podle krajů obrazovky */
-                width: auto !important;          
-                max-width: 100% !important;      
-                height: 300px !important; /* 📐 Výšku na mobilu upravte podle oka (např. 250px) */
-                
-                /* Odstraníme vnější okraje, spodek sedí na hraně displeje */
-                margin: 0 !important;   
-                
-                border-left: none !important;    
-                border-right: none !important;
-                border-bottom: none !important;
-                border-radius: 0 !important;     /* Vynulujeme zaoblení hran */
-                box-sizing: border-box !important;
-                z-index: 99999 !important; /* 💥 Vysoce nad stůl, aby přes něj nic neprosvítalo */
-            }
-
-            /* 🛠️ BONUS FIX: Zajistíme, aby se řada 6 tlačítek v logu plynule smrštila podle šířky mobilu */
-            #log-buttons-container {
-                display: flex !important;
-                flex-wrap: wrap !important;      /* 🚀 KLÍČOVÉ: Tlačítka skočí na další řádek (třeba 3 a 3), takže se zvětšená bezpečně vejdou! */
-                justify-content: center !important;
-                gap: 8px !important;             /* Větší mezery mezi tlačítky, abyste se nepřeklikli */
-                margin-bottom: 10px !important;  /* Mezera pod řadou tlačítek */
-            }
-            
-            #log-buttons-container button {
-                font-size: 30px !important;      /* 💥 VÝRAZNÉ ZVĚTŠENÍ: Ikony (talíř, ufoun, vlajka...) budou obrovské a čitelné */
-                padding: 12px 16px !important;   /* Větší plocha pro pohodlný stisk prstem */
-                min-width: 55px !important;      /* Pojistka, aby tlačítka nebyla moc úzká */
-                min-height: 55px !important;     /* Každé tlačítko bude mít parádní výšku na dotyk */
-                display: inline-flex !important;
-                justify-content: center !important;
-                align-items: center !important;
-                border-radius: 8px !important;   /* Hezčí moderní zaoblení na mobilu */
-            }
-
-            /* 📸 POJISTKA PRO OBRÁZKY: Pokud jsou v tlačítkách obrázkové ikony (<img>) místo emotikon, zvětšíme je také */
-            #log-buttons-container button img {
-                width: 32px !important;          /* Vynutíme větší šířku obrázku */
-                height: 32px !important;         /* Vynutíme větší výšku obrázku */
-                object-fit: contain !important;
-            }
-        }
-
 /* EFEKT NADZVEDNUTÍ: Když na kartu najedete myší nebo prstem, elegantně vystoupí nahoru */
 .card:hover {
     transform: translateY(-8px) scale(1.03);
@@ -805,6 +850,10 @@ button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, i
     </style>
 </head>
 <body>
+
+<!-- 🪰 TRVALÁ HOSPODSKÁ LÍHEŇ: Vloženo hned na první řádek pod body -->
+    <div id="hospodsky-hmyz-kont" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999999;"></div>
+
 <dialog id="vyskakovaci-okno">
     <!-- Text hlášky (plní JavaScript automaticky přes window.alert slovníček) -->
     <p id="vyskakovaci-okno-text" style="font-size: 1.2em; margin: 0; color: #f4ecd8; font-family: 'Georgia', serif; font-style: italic;"></p>
@@ -942,6 +991,9 @@ button, .card, .clickable, #status-bar button, .oblak-dymu, a, select, option, i
         <div class="oblak-dymu dym-2"></div>
         <div class="oblak-dymu dym-3"></div>
     </div>
+
+<div id="hospodsky-hmyz-kont" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999999 !important;"></div>
+
     	<div id="p-area-0" class="player-area p0"></div>
     	<div id="p-area-1" class="player-area p1"></div>
     	<div id="p-area-2" class="player-area p2"></div>
@@ -1785,6 +1837,18 @@ function executeFullSwap(playerChosenIdx = 0) {
 }
     
 function initGame() {
+    // =========================================================================
+    // 🔥 NEPRŮSTŘELNÝ FIX PRO BROUKY: Resetujeme simulaci na ÚPLNÉM STARTU funkce,
+    // ještě před podmínkami, aby to 2. kolo nemohlo minout!
+    // =========================================================================
+    window.rychlaSimulaceAktivni = false;    
+    window.finishedCount = 0;
+
+    // 🪰 PLÁCAČKA NA ZAMRZLÝ HMYZ: Okamžitě vyčistíme stůl
+    document.querySelectorAll('.hospodska-moucha').forEach(el => el.remove()); 
+    // =========================================================================
+
+    // Nyní teprve bezpečně pokračuje vaše kontrola herních kol a kontejnerů:
     if (typeof currentGameRound !== 'undefined' && currentGameRound > 1) {
         if (document.getElementById('setup-container')) document.getElementById('setup-container').style.display = 'none';
         if (document.getElementById('game-container')) document.getElementById('game-container').style.display = 'block';
@@ -1793,27 +1857,14 @@ function initGame() {
         if (document.getElementById('game-container')) document.getElementById('game-container').style.display = 'none';
     }
 
-    // =========================================================================
-    // 🧼 ABSOLUTNÍ OČISTA REGISTRŮ PRO STATISTIKU V KAŽDÉM KOLE
-    // =========================================================================
-    window.finishedCount = 0;
-
-// 🪰 PLÁCAČKA NA ZAMRZLÝ HMYZ: Kompletně vyčistíme stůl od havěti z minulého kola
-    document.querySelectorAll('.hospodska-moucha').forEach(el => el.remove()); 
-
-// 📱 NEPRŮSTŘELNÝ MOBILNÍ FIX: Vynucené skrytí zlatého tlačítka na startu kola
-const btnSimulace = document.getElementById('btnDosimulovat');
-if (btnSimulace) {
-    // 1. Nastavíme display na none s nejvyšší prioritou
-    btnSimulace.style.setProperty('display', 'none', 'important');
-    
-    // 2. Pro jistotu mobilu natvrdo přepíšeme i klasický CSS atribut style
-    btnSimulace.style.display = 'none';
-    
-    // 3. Pojistka pro mobilní cache: Schováme prvek i pomocí opacity a pointer-events
-    btnSimulace.style.opacity = '0';
-    btnSimulace.style.pointerEvents = 'none';
-}
+    // 📱 NEPRŮSTŘELNÝ MOBILNÍ FIX: Vynucené skrytí zlatého tlačítka na startu kola
+    const btnSimulace = document.getElementById('btnDosimulovat');
+    if (btnSimulace) {
+        btnSimulace.style.setProperty('display', 'none', 'important');
+        btnSimulace.style.display = 'none';
+        btnSimulace.style.opacity = '0';
+        btnSimulace.style.pointerEvents = 'none';
+    }
     
     // 🚀 DEFINITIVNÍ FIX ROZDÁVAJÍCÍHO: 
     // Pokud máme z minulého kola zapsané ID poraženého (loserId), 
@@ -2176,7 +2227,17 @@ prehrajZvukModalu();
     } 
     // =========================================================
     else {
-        // Pro všechny ostatní běžné karty (Šipka, Čísla, Stopka)
+        // Pro všechny ostatní běžné karty (Šipka, Čísla, Stopka, Hovno)
+        // 🌟 FIX: Pokud je startovní karta trestná, hned její efekt zapíšeme do paměti!
+        const baseStart = first.replace(/^r/, '');
+        if (['1','2','3','5','stop','hovno'].includes(baseStart)) {
+            activeEffect = first; // Trest se zapíše okamžitě na startu kola!
+        } else {
+            activeEffect = null;
+        }
+        kingChallenge = false;
+
+        // Oficiálně odmávneme start prvního tahu přesně podle pravidel vaší hry
         finishTurn(first.startsWith('r'), false);
     }
 }
@@ -2456,7 +2517,7 @@ function updateUI() {
             const aktualniNula = (topCard && topCard.startsWith('r')) ? 'rnula' : 'nula';
             
             // 🌐 FIX „OR / OR OR“: Nahrazeno čistým lomítkem /
-            hintHTML += `<b style="color:var(--red)"> STOJÍŠ:</b> ${aV_clean.toUpperCase()}! nebo ${mini(trestKarta, symbol)} / ${mini('šipka','☜')}${headHint} / ${kingIcon} / ${mini(aktualniNula,'0')}`;
+            hintHTML += `<b style="color:var(--red)"> STOJÍŠ:</b> nebo ${mini(trestKarta, symbol)} / ${mini('šipka','☜')}${headHint} / ${kingIcon} / ${mini(aktualniNula,'0')}`;
         } 
         else if (aV_clean === 'hovno') {
             const trestKarta = activeEffect; 
@@ -3073,6 +3134,11 @@ function vyresKingChallenge(prijato) {
 function executeMove(pIdx, cardIdx) {
     if (window.hraJePauznuta) return;
 
+// 🌟 SPUŠTĚNÍ ANIMACE VYHOZENÍ: Vystřelíme kartu z ruky hráče pIdx na středový balíček
+    if (typeof animujOdletKartyNaBalicek === "function") {
+        animujOdletKartyNaBalicek(pIdx);
+    }
+
     // 🍺 ZDE SE LOKÁ: Upraveno tak, aby zvládalo jedno pivo i KOMBO bez duplicity!
     if (window.beerModeAktivni !== 'ne' && players[pIdx]) {
         let hrac = players[pIdx];
@@ -3636,6 +3702,10 @@ function selectCarousel(choice) {
 }
 
 function drawAction(pIdx) {
+    // 🌟 SPUŠTĚNÍ ANIMACE: Vystřelíme vizuální kartu z balíčku k hráči s indexem pIdx
+    if (typeof animujLetKarty === "function") {
+        animujLetKarty(pIdx);
+    }
     const pName = players[pIdx].name;
     const p = players[pIdx];
     
@@ -4591,12 +4661,43 @@ if (b === 'lízátko') return 3;
 }
 
 function botTurn() {
-    if (window.hraJePauznuta) return; // Pokud svítí alert, bot okamžitě končí a čeká!
+    if (window.hraJePauznuta) return; 
     if (botThinking) return;
     
     let p = players[currentPlayerIdx];
     if (!p || p.out || !p.isBot) return;
 
+    // =========================================================================
+    // 👑 ABSOLUTNÍ OCHRANA BOTŮ V KOMBO REŽIMU PRO KRÁLOVSKOU VÝZVU 👑
+    // =========================================================================
+    // Pokud v Kombu asynchronně doběhne jakýkoliv zapomenutý tah, ale v systému
+    // zrovna aktivně běží Královská výzva, bot NESMÍ spustit běžný tah ani vzít index 0!
+    if (kingChallenge) {
+        // V tichosti zkontrolujeme, zda má bot v ruce legitimní kartu na obranu
+        let obrannyCardIdx = p.hand.findIndex(karta => {
+            const base = karta.replace(/^r/, '').toLowerCase();
+            return base === 'král' || karta === THL || karta === T0 || karta === R0;
+        });
+
+        if (obrannyCardIdx !== -1) {
+            // Pokud obranu má, donutíme ho okamžitě odehrát POUZE tuto kartu a vyskočit!
+            botThinking = false;
+            executeMove(currentPlayerIdx, obrannyCardIdx);
+            return;
+        } else {
+            // Pokud obranu NEMÁ, KOMBO režim ho nesmí nechat vyhodit Smajlíka.
+            // Okamžitě vypínáme jeho myšlení a necháme Krále regulérně přeletět na dalšího!
+            botThinking = false;
+            kingChallenge = false; // Vypneme pro tohoto bota, aby letěl dál
+            
+            let zpozdeniPreletu = players[0].out ? 600 : 300;
+            if (typeof checkTurnStart === "function") {
+                setTimeout(checkTurnStart, zpozdeniPreletu);
+            }
+            return; // 🛑 STOP: Zbytek funkce botTurn (běžný tah, Smajlík, index 0) se vůbec nespustí!
+        }
+    }
+    // =========================================================================
     botThinking = true;
 
     // =========================================================================
@@ -5636,105 +5737,187 @@ function spustDosimulovaniKola() {
     }
 }
 
+// 🪰 JEDINÝ A DEFINITIVNÍ BIOTOP HAVĚTI (ZAPSANÝ STEJNĚ JAKO DÝM) 🪰
+// =========================================================================
 const DRUHY_HMYZU = [
-    { symbol: '🪰', nazev: 'moucha', velikost: '25px', rychlost: 1500, posedavost: 2000, sanceNaSednuti: 0.5, typ: 'letavec' },
-    { symbol: '🐝', nazev: 'srsen', velikost: '50px', rychlost: 900, posedavost: 800, sanceNaSednuti: 0.2, typ: 'letavec' },
-    { symbol: '🦟', nazev: 'komar', velikost: '25px', rychlost: 1100, posedavost: 1200, sanceNaSednuti: 0.4, typ: 'letavec' },
-    { symbol: '🦋', nazev: 'mol', velikost: '25px', rychlost: 2200, posedavost: 4000, sanceNaSednuti: 0.7, typ: 'letavec' },
-    { symbol: '🪳', nazev: 'svab', velikost: '50px', rychlost: 700, posedavost: 1500, sanceNaSednuti: 0.8, typ: 'lezec' } // 🌟 NOVÝ ŠVÁB!
+    { symbol: '🪰', velikost: '25px', rychlost: 1200, posedavost: 2000, sanceNaSednuti: 0.5, typ: 'letavec' },
+    { symbol: '🐝', velikost: '50px', rychlost: 800, posedavost: 800, sanceNaSednuti: 0.2, typ: 'letavec' },
+    { symbol: '🦟', velikost: '25px', rychlost: 1000, posedavost: 1200, sanceNaSednuti: 0.4, typ: 'letavec' },
+    { symbol: '🦋', velikost: '30px', rychlost: 1800, posedavost: 4000, sanceNaSednuti: 0.7, typ: 'letavec' },
+    { symbol: '🪳', velikost: '60px', rychlost: 600, posedavost: 1500, sanceNaSednuti: 0.8, typ: 'lezec' }
 ];
 
 function vypustHospodskyHmyz() {
-    if (window.rychlaSimulaceAktivni) return;
+    // 🌟 1. NEPRŮSTŘELNÝ ŘEZ: Kompletně jsme smazali řádek "if (window.rychlaSimulaceAktivni) return;"
+    // Tím bereme asynchronním časovačům z konce kola jakoukoliv šanci brouky v 2. kole zablokovat!
+    
+    const kont = document.getElementById('hospodsky-hmyz-kont');
+    if (!kont) return; 
 
     const druh = DRUHY_HMYZU[Math.floor(Math.random() * DRUHY_HMYZU.length)];
     const potvůrka = document.createElement('div');
     
-    // Šváb nebude mít bzučící animaci mouchy, vrtí se sám při pohybu
     potvůrka.className = 'hospodska-moucha' + (druh.typ === 'letavec' ? ' moucha-bzuci' : '');
     potvůrka.innerHTML = druh.symbol;
-    
     potvůrka.style.fontSize = druh.velikost;
     potvůrka.style.transition = `left ${druh.rychlost}ms ease-in-out, top ${druh.rychlost}ms ease-in-out, transform 0.2s ease-in-out`;
     
-    // Výchozí pozice: Vleze na stůl z náhodného okraje
+    // Startovní pozice zvenčí displeje
     let startZleva = Math.random() < 0.5;
-    potvůrka.style.left = startZleva ? '-50px' : (window.innerWidth + 50) + 'px';
-    potvůrka.style.top = Math.random() * window.innerHeight + 'px';
-    document.body.appendChild(potvůrka);
+    potvůrka.style.left = startZleva ? '-40px' : (window.innerWidth + 40) + 'px';
+    potvůrka.style.top = Math.random() * (window.innerHeight * 0.4) + 100 + 'px';
+    
+    kont.appendChild(potvůrka);
 
-    let pocetPreletu = Math.floor(Math.random() * 4) + 4; // 4 až 7 rychlých přeběhů/přeletů
+    let pocetPreletu = Math.floor(Math.random() * 4) + 4; 
 
     function letNaDalsiMisto() {
+        if (!kont || !kont.contains(potvůrka)) return;
+
         if (pocetPreletu <= 0) {
-            // Havěť opouští krčmu
-            potvůrka.style.left = (Math.random() < 0.5 ? -50 : window.innerWidth + 50) + 'px';
-            potvůrka.style.top = Math.random() * window.innerHeight + 'px';
-            setTimeout(() => { potvůrka.remove(); }, druh.rychlost + 500);
+            potvůrka.style.left = (Math.random() < 0.5 ? -60 : window.innerWidth + 60) + 'px';
+            setTimeout(() => { potvůrka.remove(); }, druh.rychlost + 100);
             return;
         }
 
         pocetPreletu--;
-
-        let cilLeft = 0; 
-        let cilTop = 0;
-        let sedneSi = Math.random() < druh.sanceNaSednuti;
         
-        const vsechnyKarty = document.querySelectorAll('.card:not(.hidden), .player-box, .player-area');
+        // Výpočet souřadnic čistě z rozměrů okna displeje (window), které nikdy nejsou nula
+        let cilLeft = Math.random() * (window.innerWidth - 120) + 60;
         
-        if (sedneSi && vsechnyKarty.length > 0) {
-            const prvek = vsechnyKarty[Math.floor(Math.random() * vsechnyKarty.length)];
-            const rect = prvek.getBoundingClientRect();
-            cilLeft = rect.left + (Math.random() * (rect.width - 20)) + window.scrollX;
-            cilTop = rect.top + (Math.random() * (rect.height - 20)) + window.scrollY;
-        } else {
-            cilLeft = Math.random() * (window.innerWidth - 120) + 60;
-            cilTop = Math.random() * (window.innerHeight - 120) + 60;
-        }
+        let volnyVrsokStolu = window.innerHeight - 340; 
+        if (volnyVrsokStolu < 150) volnyVrsokStolu = 200; 
+        
+        let cilTop = Math.random() * (volnyVrsokStolu - 90) + 90;
 
-        // --- 📐 NATÁČENÍ A ROTACE PODLE SMĚRU POHYBU ---
         let aktLeft = parseFloat(potvůrka.style.left) || 0;
         let aktTop = parseFloat(potvůrka.style.top) || 0;
         
         if (druh.typ === 'lezec') {
-            // Šváb se realisticky otočí přesně čumákem tam, kam zmateně běží
             let úhel = Math.atan2(cilTop - aktTop, cilLeft - aktLeft) * (180 / Math.PI);
-            // Emoji švába 🪳 míří standardně nahoru/vpravo, přidáme korekci úhlu (cca 90 nebo 45 stupňů)
             potvůrka.style.transform = `rotate(${úhel + 90}deg)`;
         } else {
-            // Letavci se klasicky zrcadlí vlevo/vpravo
             potvůrka.style.transform = (cilLeft < aktLeft) ? 'scaleX(-1)' : 'scaleX(1)';
         }
         
         potvůrka.style.left = cilLeft + 'px';
         potvůrka.style.top = cilTop + 'px';
 
-        // Posedávání/Zastavení na místě
         let casNaPosedavani = Math.random() * druh.posedavost + (druh.posedavost / 2); 
         setTimeout(letNaDalsiMisto, druh.rychlost + casNaPosedavani);
     }
-
     setTimeout(letNaDalsiMisto, 100);
 }
 
 function SpustHmyziSmycku() {
-    // Generuje náhodný čas mezi 12 a 24 vteřinami pro další líhnutí
-    let nahodnyCas = Math.random() * 5000 + 5000; 
+    // Časovač tiká každých 4 až 9 vteřin
+    let nahodnyCas = Math.random() * 5000 + 4000; 
     
     setTimeout(() => {
-        // Kontrola: Pokud neběží zrychlená simulace a na stole jsou max 3 hmyzáci
-        if (!window.rychlaSimulaceAktivni && document.querySelectorAll('.hospodska-moucha').length < 4) {
-            if (Math.random() < 0.99) { 
+        const kont = document.getElementById('hospodsky-hmyz-kont');
+        if (kont) {
+            // 🌟 2. NEPRŮSTŘELNÝ ŘEZ: I odsud jsme smazali podmínku "window.rychlaSimulaceAktivni"
+            // Jediné, co kód teď hlídá, je počet živých prvků na obrazovce (max 3 havěti naráz)
+            let aktualniBrouci = kont.querySelectorAll('.hospodska-moucha').length;
+            if (aktualniBrouci < 4) {
                 vypustHospodskyHmyz();
             }
         }
-        // Smyčka zavolá sama sebe znovu -> neumře při restartu kola
         SpustHmyziSmycku();
     }, nahodnyCas);
 }
 
-// První start líhně po načtení stránky
+// První start po načtení stránky
 SpustHmyziSmycku();
+
+// 🃏 VIZUÁLNÍ ANIMACE LÉTACÍ KARTY Z BALÍČKU K HRÁČI 🃏
+// =========================================================================
+function animujLetKarty(playerIdx) {
+    if (window.rychlaSimulaceAktivni) return;
+
+    const balicekEl = document.querySelector('.center-area, .deck-area, #center-area');
+    const hracEl = document.getElementById(`p-area-${playerIdx}`) || document.querySelector(`.p${playerIdx}`);
+
+    if (!balicekEl || !hracEl) return;
+
+    const rectBalicek = balicekEl.getBoundingClientRect();
+    const rectHrac = hracEl.getBoundingClientRect();
+
+    const startX = rectBalicek.left + (rectBalicek.width / 2) - 32;
+    const startY = rectBalicek.top + (rectBalicek.height / 2) - 47;
+    
+    const cilX = rectHrac.left + (rectHrac.width / 2) - 32;
+    const cilY = rectHrac.top + (rectHrac.height / 2) - 47;
+
+    const duchKarty = document.createElement('div');
+    duchKarty.className = 'letajici-karta-duch';
+    duchKarty.style.left = startX + 'px';
+    duchKarty.style.top = startY + 'px';
+    duchKarty.style.transform = 'scale(0.4) rotate(0deg)';
+    duchKarty.style.opacity = '0.5';
+
+    document.body.appendChild(duchKarty);
+
+    // 🌟 SAMOČISTÍCÍ POJISTKA: Jakmile karta doletí, prohlížeč ji sám okamžitě zničí
+    duchKarty.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName === 'left' || e.propertyName === 'top') {
+            duchKarty.remove();
+            duchKarty.removeEventListener('transitionend', handler);
+        }
+    });
+
+    requestAnimationFrame(() => {
+        duchKarty.style.left = cilX + 'px';
+        duchKarty.style.top = cilY + 'px';
+        duchKarty.style.transform = 'scale(1) rotate(15deg)';
+        duchKarty.style.opacity = '1';
+    });
+}
+
+// =========================================================================
+// 🃏 VIZUÁLNÍ ANIMACE ODLETU KARTY Z RUKY NA BALÍČEK (BEZPEČNÁ VERZE) 🃏
+// =========================================================================
+function animujOdletKartyNaBalicek(playerIdx) {
+    if (window.rychlaSimulaceAktivni) return;
+
+    const hracEl = document.getElementById(`p-area-${playerIdx}`) || document.querySelector(`.p${playerIdx}`);
+    const balicekEl = document.querySelector('.center-area, .deck-area, #center-area');
+
+    if (!hracEl || !balicekEl) return;
+
+    const rectHrac = hracEl.getBoundingClientRect();
+    const rectBalicek = balicekEl.getBoundingClientRect();
+
+    const startX = rectHrac.left + (rectHrac.width / 2) - 32;
+    const startY = rectHrac.top + (rectHrac.height / 2) - 47;
+    
+    const cilX = rectBalicek.left + (rectBalicek.width / 2) - 32;
+    const cilY = rectBalicek.top + (rectBalicek.height / 2) - 47;
+
+    const duchKarty = document.createElement('div');
+    duchKarty.className = 'letajici-karta-duch';
+    duchKarty.style.left = startX + 'px';
+    duchKarty.style.top = startY + 'px';
+    duchKarty.style.transform = 'scale(1) rotate(15deg)';
+    duchKarty.style.opacity = '1';
+
+    document.body.appendChild(duchKarty);
+
+    // 🌟 SAMOČISTÍCÍ POJISTKA: Odstraní kartu po dopadu doprostřed stolu
+    duchKarty.addEventListener('transitionend', function handler(e) {
+        if (e.propertyName === 'left' || e.propertyName === 'top') {
+            duchKarty.remove();
+            duchKarty.removeEventListener('transitionend', handler);
+        }
+    });
+
+    requestAnimationFrame(() => {
+        duchKarty.style.left = cilX + 'px';
+        duchKarty.style.top = cilY + 'px';
+        duchKarty.style.transform = 'scale(0.8) rotate(0deg)';
+        duchKarty.style.opacity = '0.8';
+    });
+}
 
 </script>
 </body>
