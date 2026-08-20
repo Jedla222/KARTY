@@ -3381,6 +3381,8 @@ function executeMove(pIdx, cardIdx) {
     
     let card = players[pIdx].hand.splice(cardIdx, 1)[0];
 
+
+
     if (card === THL) {
         const lastCard = discardStack[discardStack.length - 1]; 
         if (lastCard) {
@@ -3392,6 +3394,45 @@ function executeMove(pIdx, cardIdx) {
     const cardBase = card.replace(/^r/, '');
     
     discardStack.push(card);
+
+// 👑 NEPRŮSTŘELNÁ LOGIKA PRO ODEHRANÉHO KRÁLE (FIX POSLEDNÍ KARTY KOLO č. 3)
+    // =========================================================================
+    if (cardBase.toLowerCase() === 'král') {
+        // 🌟 NÁBOJ KRÁLE: Pokud byl na stole aktivní útok (dvojka, pětka, stopka),
+        // Král ho do sebe nekompromisně nasaje jako svůj permanentní náboj!
+        if (typeof activeEffect !== 'undefined' && activeEffect !== null) {
+            window.nabojLeticihoKrale = activeEffect;
+        } else {
+            // Pokud pod ním nic neleželo, nese v sobě standardní volný tah
+            window.nabojLeticihoKrale = null; 
+        }
+
+        kingChallenge = true;
+        activeEffect = window.nabojLeticihoKrale; // Král si drží útok u sebe!
+        
+        let isReverseKing = card.startsWith('r');
+        let kingDir = isReverseKing ? -1 : 1;
+        let ziviHraciPocet = players.filter(pl => !pl.out).length;
+
+        let targetIdx = (pIdx + kingDir + numPlayers) % numPlayers;
+        while (players[targetIdx].out || players[targetIdx].pivniStopka) {
+            targetIdx = (targetIdx + kingDir + numPlayers) % numPlayers;
+            if (targetIdx === pIdx) break;
+        }
+
+        addToLog(`👑 <b>${players[pIdx].name}</b> zahrál Krále! Výzva letí na hráče <b>${players[targetIdx].name}</b>.`);
+
+        // KROK PRO 3 HRÁČE: Pokud odhodíte Krále jako poslední kartu, tah letí rovnou na bota!
+        if (pIdx === 0 && players[pIdx].hand.length === 0 && ziviHraciPocet > 2) {
+            window.hraJePauznuta = false;
+            currentPlayerIdx = targetIdx;
+            if (typeof updateUI === "function") updateUI();
+            setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 300);
+            return; 
+        }
+    } 
+    
+    // =========================================================================
 
     // 1. VYHODNOCENÍ EFEKTŮ
     if (card === T0 || card === R0) {
@@ -3907,123 +3948,64 @@ function finishTurn(rev, keep) {
                 setTimeout(checkTurnStart, 1000);
                 return;
             } else {
-                // SCÉNÁŘ B: PŘELET KRÁLE (Soused obranu nemá nebo se vzdal)
-                let currentPunishment = null;
+                // =========================================================================
+                // SCÉNÁŘ B: PŘELET KRÁLE (SOUSEDOVÉ VÝZVU ODMÍTLI NEBO SE VZDALI)
+                // =========================================================================
+                let ziviHraciPocet = players.filter(pl => !pl.out).length;
+                let aktualniSmerLetuKrale = topCard.startsWith('r') ? -1 : 1;
 
-                if (activeEffect !== null) {
-                    for (let i = discardStack.length - 2; i >= 0; i--) {
-                        const checkCard = discardStack[i];
-                        if (!checkCard) continue;
-                        const checkBase = checkCard.replace(/^r/, '');
-                        const smajlBase = TSM.replace(/^r/, '');
-                        
-                        if (checkCard === TLIZ || checkCard === T0 || checkCard === R0) {
-                            currentPunishment = null;
-                            break;
-                        }
-                        if (checkBase === 'král' || checkBase === 'hlava' || checkBase.includes('šipka') || checkBase === smajlBase) {
-                            continue; 
-                        }
-                        currentPunishment = checkCard;
-                        break;
-                    }
-                }
-                
-                activeEffect = currentPunishment ? currentPunishment : null;
-                if (activeEffect !== null) {
-                    carouselConstraint = null;
-                }
-
-                // Králova výzva pro tuto chvíli kompletně končí - horký brambor vybuchl v ruce souseda!
-                kingChallenge = false; 
-
-                // Určíme text trestu pro výpis do logu
-                let textPunishment = activeEffect ? activeEffect.replace(/^r/, '') : 'volný tah';
-                if (textPunishment === 'volný tah' && carouselConstraint !== null) {
-                    textPunishment = `úkol Kolotoče: ${carouselConstraint.replace(/^r/, '')}`;
-                }
-                
-                // Zápis o tom, že soused schytal trest a Výzva končí
-                addToLog(`🚫 <b>${players[neighborIdx].name}</b> neměl obranu na Královskou výzvu -> LÍZAL / STÁL a nese trest: ${textPunishment}.`);
-
-                // Nastavíme tah na tohoto poraženého souseda, který trest právě vykonává
-                currentPlayerIdx = neighborIdx;
-                updateUI();
-
-                // --- VARIANTA 1: Král nesl jen obyčejný volný tah ---
-                if (activeEffect === null) {
-                    
-                    // 🌟 NEPRŮSTŘELNÝ FIX PRO MÓD HRAJ: 
-                    // Pokud je aktivní pivní režim 'hraj', tah se NEPOSOUVÁ dál na sousedy,
-                    // ale vrátí se zpět hráči, který má zrovna aktivní bonusový tah!
-                    if (typeof pivniMode !== 'undefined' && pivniMode === 'hraj' && typeof window.hracSBonusemIdx !== 'undefined' && window.hracSBonusemIdx !== null) {
-                        currentPlayerIdx = window.hracSBonusemIdx;
-                        window.hracSBonusemIdx = null; // Vyčistíme registr pro další tahy
-                    } else {
-                        // Standardní chování mimo režim Hraj: Tah přechází na dalšího hráče v normálním směru
-                        currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
-                        while (players[currentPlayerIdx].out) {
-                            currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
-                        }
-                    }
-                    
-                    updateUI();
-                    setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 200);
-                    return; 
-                }
-
-                // --- VARIANTA 2: Král na sobě nesl aktivní Stopku nebo Hovno z Kolotoče ---
-                if (activeEffect !== null) {
-                    const checkStop = activeEffect.replace(/^r/, '').toLowerCase();
-                    
-                    if (checkStop.includes('stop') || checkStop.includes('hovno')) {
-                        
-                        // =========================================================================
-                        // 🚀 ABSOLUTNÍ FIX PRO ČLOVÊKA (Jedla): Čelí běžnému trestu Stopky/Hovna
-                        // =========================================================================
-                        if (!players[currentPlayerIdx].isBot) {
-                            kingChallenge = false; // 🚨 NATVRDO VYPÍNÁME: Už to není Králova výzva!
-                            updateUI();
-                            // Neotvíráme žádné okno výzvy, systém vás nechá z ruky vyhodit běžnou obranu (Stop/Hovno/Nulu/Hlavu)
-                            setTimeout(checkTurnStart, 100);
-                            return; 
-                        }
-
-                        // Kontrola nouzové ochrany pro bota před nuceným stáním
-                        const botHasDefense = players[currentPlayerIdx].hand.some(c => {
-                            const b = c.toLowerCase();
-                            return b.includes('stop') || b.includes('hovno') || b.includes('nula') || b.includes('hlava') || b === THL || b === T0 || b === R0;
-                        });
-
-                        if (botHasDefense) {
-                            kingChallenge = true; 
-                            addToLog(`🤖 <b>${players[currentPlayerIdx].name}</b> dostal do ruky přeletěný trest a připravuje si obranu z ruky!`);
-                            updateUI();
-                            setTimeout(checkTurnStart, 200);
-                            return; 
-                        }
-
-                        // Bot obranu nemá -> Fyzicky stojí a aktivní efekt se nuluje
-                        addToLog(`🚫 <b>${players[currentPlayerIdx].name}</b> neměl obranu na přeletěný trest -> STÁL.`);
-                        activeEffect = null;
-                        kingChallenge = false;
-                        
-                        // Tah se po stání posouvá o jednoho dál v normálním směru hry (d)
-                        currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
-                        while (players[currentPlayerIdx].out) {
-                            currentPlayerIdx = (currentPlayerIdx + d + numPlayers) % numPlayers;
-                        }
-                    }
-                }
-
-                updateUI();
-                
-                if (players.filter(pl => !pl.out).length === 1) {
-                    // Propad dolů na winnerCheck na konci funkce
+                // 🌟 NEPRŮSTŘELNÝ PŘENOS TRESTU:
+                // Král už nehledá v balíčku. Vezme ten uložený náboj z paměti window 
+                // a nekompromisně ho drží v registru activeEffect i pro dalšího hráče v řadě!
+                if (typeof window.nabojLeticihoKrale !== 'undefined' && window.nabojLeticihoKrale !== null) {
+                    activeEffect = window.nabojLeticihoKrale;
                 } else {
-                    setTimeout(checkTurnStart, 200);
+                    activeEffect = null;
+                }
+
+                // 🌟 DUELOVÝ FIX PRO 2 HRÁČE:
+                if (ziviHraciPocet === 2) {
+                    currentPlayerIdx = 0; 
+                    kingChallenge = false; 
+                    window.nabojLeticihoKrale = null; // V duelu náboj po obletu stolu čistíme
+                    activeEffect = null; 
+                    
+                    addToLog(`✈️ <b>${players[neighborIdx].name}</b> nevyužil Královskou výzvu. Král ho přelétá a v duelu se vrací k vám.`);
+                    if (typeof updateUI === "function") updateUI();
+                    setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 200);
+                    return;
+                }
+
+                // =========================================================================
+                // REŽIM PRO VÍC NEŽ 2 HRÁČE (Plynulý let Krále stolem)
+                // =========================================================================
+                let dalsiSousedIdx = (neighborIdx + aktualniSmerLetuKrale + numPlayers) % numPlayers;
+                while (players[dalsiSousedIdx].out || players[dalsiSousedIdx].pivniStopka) {
+                    dalsiSousedIdx = (dalsiSousedIdx + aktualniSmerLetuKrale + numPlayers) % numPlayers;
+                    if (dalsiSousedIdx === currentPlayerIdx) break;
+                }
+
+                addToLog(`✈️ <b>${players[neighborIdx].name}</b> nevyužil Královskou výzvu. Král ho beztrestně přelétá na hráče <b>${players[dalsiSousedIdx].name}</b>.`);
+
+                currentPlayerIdx = dalsiSousedIdx;
+                kingChallenge = true; // Výzva drží dál!
+                
+                if (typeof updateUI === "function") updateUI();
+                
+                // Otevření okna pro člověka, pokud Král doletěl na tebe
+                if (!players[currentPlayerIdx].isBot) {
+                    window.hraJePauznuta = true;
+                    window.kingChallengeCard = topCard;
+                    window.kingChallengeRev = topCard.startsWith('r');
+                    
+                    if (typeof prehrajZvukModalu === "function") prehrajZvukModalu();
+                    document.getElementById('king-challenge-modal').style.display = 'flex';
+                    if (typeof updateUI === "function") updateUI();
                     return; 
                 }
+
+                setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 300);
+                return;
             }
         // =========================================================================
         // 🃏 2. KLASICKÝ POSUN PRO OSTATNÍ KARTY (Čísla, Šipky, Stopky...) 🃏
@@ -4639,7 +4621,6 @@ if (['stop'].includes(clean)) return `Braň se: ${mini(eff, clean==='stop'?'✖'
 setTimeout(botTurn, window.rychlaSimulaceAktivni ? 1 : zpozdeniBota);
     }
 }
-
 
 function getCardSwapWeight(card) {
     const b = card.replace(/^r/, '')
@@ -5293,6 +5274,7 @@ function playSound(soundKey) {
         audio.play().catch(err => console.log("Zvuk blokován:", err));
     }
 }
+
 function cheatZmenOsudi(kodKarty) {
     let nalezenePromenne = [];
     
@@ -5456,6 +5438,7 @@ function potvrditAlert() {
         setTimeout(checkTurnStart, 300);
   }
 }
+
 // =========================================================================
 // --- JAZYKOVÁ MUTACE PRO UFOKARTY ---
 // =========================================================================
@@ -5692,6 +5675,7 @@ function zvolitKomboPivo(vybranyMod) {
     // Překreslíme stůl – karty se v tuto mikrosekundu stoprocentně odemknou k hraní!
     updateUI();
 }
+
 function zkontrolujKonecProCloveka(poradiHrace) {
     const btnSimulace = document.getElementById('btnDosimulovat');
     if (!btnSimulace) return;
@@ -5748,9 +5732,7 @@ const DRUHY_HMYZU = [
 ];
 
 function vypustHospodskyHmyz() {
-    // 🌟 1. NEPRŮSTŘELNÝ ŘEZ: Kompletně jsme smazali řádek "if (window.rychlaSimulaceAktivni) return;"
-    // Tím bereme asynchronním časovačům z konce kola jakoukoliv šanci brouky v 2. kole zablokovat!
-    
+    // 🌟 ČERSTVÉ VYHLEDÁNÍ: Kontejner zaměříme pokaždé znovu, přímo z aktuálního HTML stolu!
     const kont = document.getElementById('hospodsky-hmyz-kont');
     if (!kont) return; 
 
@@ -5762,7 +5744,7 @@ function vypustHospodskyHmyz() {
     potvůrka.style.fontSize = druh.velikost;
     potvůrka.style.transition = `left ${druh.rychlost}ms ease-in-out, top ${druh.rychlost}ms ease-in-out, transform 0.2s ease-in-out`;
     
-    // Startovní pozice zvenčí displeje
+    // Startovní pozice zvenčí displeje relativně k oknu prohlížeče
     let startZleva = Math.random() < 0.5;
     potvůrka.style.left = startZleva ? '-40px' : (window.innerWidth + 40) + 'px';
     potvůrka.style.top = Math.random() * (window.innerHeight * 0.4) + 100 + 'px';
@@ -5772,7 +5754,10 @@ function vypustHospodskyHmyz() {
     let pocetPreletu = Math.floor(Math.random() * 4) + 4; 
 
     function letNaDalsiMisto() {
-        if (!kont || !kont.contains(potvůrka)) return;
+        // 🌟 DŮLEŽITÁ POJISTKA PRO 2. KOLO: 
+        // V každém kroku letu zkontrolujeme čerstvý živý kontejner z obrazovky, ne ten starý z paměti!
+        const zivyKont = document.getElementById('hospodsky-hmyz-kont');
+        if (!zivyKont || !zivyKont.contains(potvůrka)) return;
 
         if (pocetPreletu <= 0) {
             potvůrka.style.left = (Math.random() < 0.5 ? -60 : window.innerWidth + 60) + 'px';
@@ -5810,19 +5795,18 @@ function vypustHospodskyHmyz() {
 }
 
 function SpustHmyziSmycku() {
-    // Časovač tiká každých 4 až 9 vteřin
     let nahodnyCas = Math.random() * 5000 + 4000; 
     
     setTimeout(() => {
-        const kont = document.getElementById('hospodsky-hmyz-kont');
-        if (kont) {
-            // 🌟 2. NEPRŮSTŘELNÝ ŘEZ: I odsud jsme smazali podmínku "window.rychlaSimulaceAktivni"
-            // Jediné, co kód teď hlídá, je počet živých prvků na obrazovce (max 3 havěti naráz)
-            let aktualniBrouci = kont.querySelectorAll('.hospodska-moucha').length;
+        // 🌟 TADY JE TEN REVOLUČNÍ KROK: Vyhledáme kontejner natvrdo z živého DOMu pokaždé znovu!
+        const zivyKont = document.getElementById('hospodsky-hmyz-kont');
+        if (zivyKont) {
+            let aktualniBrouci = zivyKont.querySelectorAll('.hospodska-moucha').length;
             if (aktualniBrouci < 4) {
                 vypustHospodskyHmyz();
             }
         }
+        // Smyčka bezpečně pokračuje dál do dalšího kola
         SpustHmyziSmycku();
     }, nahodnyCas);
 }
