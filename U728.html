@@ -50,7 +50,7 @@ html, body { overscroll-behavior: contain !important; }
         }
         
         :root { 
-            --blue: #007bff; --yellow: #ffcc00; --red: #e94560; --green: #28a745; --brown: #8B4513; --black: #000000; --teal: #008080; --pink: #ff69b4; --white: #ffffff; --grey: #808080; --orange: #ff9800; --hlava: #C9FFE5; --nula:#d3d3d3; 
+            --blue: #007bff; --yellow: #ffcc00; --red: #e94560; --green: #28a745; --brown: #8B4513; --black: #000000; --teal: #008080; --pink: #ff69b4; --white: #ffffff; --grey: #808080; --orange: #ff9800; --hlava: #C9FFE5; --nula:#d3d3d3; --vymena:#00ff00;
         }
         
         body { 
@@ -163,7 +163,7 @@ html, body { overscroll-behavior: contain !important; }
     pointer-events: none;
     overflow: hidden;
     z-index: 1 !important;
-    opacity: 0.35;
+    opacity: 1 !important; /* 🌟 FIX: Odemkneme kontejner na plnou sytost, ať netlumí vnitřní oblaky! */
     
     /* 🌟 MOBILNÍ ZÁMEK: Tyto 3 řádky vrátí mobilnímu zobrazení původní milimetrovou stabilitu */
     max-width: 100vw !important;
@@ -173,67 +173,162 @@ html, body { overscroll-behavior: contain !important; }
 
 .oblak-dymu {
     position: absolute;
-    /* Oprava gradientu: Přidána neprůstřelná bílo-šedá barva s mlžným efektem */
-    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(220,220,220,0.2) 40%, rgba(0,0,0,0) 70%) !important;
+    /* 🌟 FIX GRADIENTU: Použijeme hustší, špinavě bílou/tabákovou barvu, která skvěle vystoupí ze zeleného plátna */
+    background: radial-gradient(circle, rgba(235, 230, 220, 0.75) 0%, rgba(200, 195, 185, 0.3) 45%, rgba(0,0,0,0) 70%) !important;
     border-radius: 50%;
     pointer-events: none;
-    filter: blur(50px); /* Silnější rozmazání do mlžného oparu */
+    filter: blur(55px); /* Silnější rozmazání do luxusního mlžného oparu */
     animation: plynutiDymu 35s infinite ease-in-out;
 }
 
-/* Fix pro polohování, aby oblaky nebyly schované mimo viditelnou plochu */
+/* Polohování z vašeho kódu (ponecháno přesně tak, jak vám vyhovuje) */
 .dym-1 { width: 650px; height: 550px; left: -15%; top: 5%;   animation-duration: 12s; animation-delay: 0s; }
 .dym-2 { width: 750px; height: 650px; right: -20%; top: 25%; animation-duration: 16s; animation-delay: -3s; }
 .dym-3 { width: 600px; height: 500px; left: 20%; bottom: -15%; animation-duration: 14s; animation-delay: -5s; }
 
-/* 🔥 ZESÍLENÁ ANIMACE: Oblaky teď divoce cestují napříč suknem stolu */
+/* 🔥 VAŠE ZESÍLENÁ ANIMACE: Oblaky divoce cestují a plynule mění hustotu */
 @keyframes plynutiDymu {
     0% {
         transform: translate(0, 0) scale(1) rotate(0deg);
-        opacity: 0.3;
+        opacity: 0.35;
     }
     25% {
-        /* První oblak odcestuje výrazně doprava a dolů */
-        transform: translate(250px, 150px) scale(1.2) rotate(90deg);
-        opacity: 0.7;
+        /* Dým se plynule svalí do středu a výrazně zhoustne */
+        transform: translate(250px, 150px) scale(1.3) rotate(90deg);
+        opacity: 0.65;
     }
     50% {
-        /* V půlce animace se kouř prožene středem stolu a zředí se */
         transform: translate(400px, -100px) scale(0.8) rotate(180deg);
-        opacity: 0.2;
+        opacity: 0.25;
     }
     75% {
-        /* Návratová křivka spodem stolu obloukem zpět */
-        transform: translate(-150px, 200px) scale(1.3) rotate(270deg);
-        opacity: 0.6;
+        /* Druhá vlna hustého kouře se prožene spodem stolu */
+        transform: translate(-150px, 200px) scale(1.4) rotate(270deg);
+        opacity: 0.60;
     }
     100% {
-        /* Perfektní navázání smyčky na začátek */
         transform: translate(0, 0) scale(1) rotate(360deg);
-        opacity: 0.3;
+        opacity: 0.35;
     }
 }
 
-/* --- HOSPODSKÉ MOUCHY --- */
-.hospodska-moucha {
-    position: absolute !important; /* 🌟 Pevně spjato s plátnem stolu, přesně jako dým */
-    font-size: 14px;
-    z-index: 9999999 !important; 
-    pointer-events: none; 
-    transition: left 1.2s ease-in-out, top 1.2s ease-in-out, transform 0.2s ease-in-out;
-    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.4));
+.trvaly-css-hmyz {
+    position: fixed !important;
+    font-size: 16px;
+    z-index: 9999999999 !important; /* Absolutní nadvláda – létají nad stolem, kartami i logem */
+    pointer-events: none !important; /* Vynucené absolutní prokliknutí na karty */
+    opacity: 0.75;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
 }
 
-/* Jemné bzučení / kmitání křídel na místě */
-@keyframes bzuceniMouchy {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    20% { transform: translate(-1px, 1px) scale(1.05); }
-    40% { transform: translate(1px, -1px) scale(0.95); }
-    60% { transform: translate(-1px, -1px) scale(1); }
-    80% { transform: translate(1px, 1px) scale(1.05); }
+/* 1. 🪰 MOUCHA: Rychlé, chaotické cukání s posedáváním uprostřed stolu */
+@keyframes letMouchyCSS {
+    0%   { left: -50px; top: 150px; transform: rotate(90deg); }   /* Letí doprava na stůl */
+    15%  { left: 25%; top: 120px; transform: rotate(80deg); }     /* Mírně nahoru a vpravo */
+    30%  { left: 45%; top: 220px; transform: rotate(140deg); }    /* Cukne prudce dolů a vpravo */
+    /* ⏸️ Posedávání: Moucha se na chvíli zastaví a nervózně se zavrtí na místě */
+    40%  { left: 45%; top: 220px; transform: rotate(140deg); } 
+    42%  { left: 45%; top: 220px; transform: rotate(200deg); } 
+    45%  { left: 45%; top: 220px; transform: rotate(180deg); } 
+    /* 🚀 Odlet z posezení směrem vlevo nahoru */
+    60%  { left: 20%; top: 130px; transform: rotate(-110deg); }   
+    75%  { left: 75%; top: 280px; transform: rotate(50deg); }     /* Prudký obrat dolů doprava */
+    90%  { left: 90%; top: 160px; transform: rotate(-45deg); }    /* Letí nahoru doleva */
+    98%  { left: calc(100vw + 50px); top: 180px; transform: rotate(90deg); } /* Mizí vpravo */
+    100% { left: -50px; top: 150px; transform: rotate(90deg); }
 }
-.moucha-bzuci {
-    animation: bzuceniMouchy 0.1s infinite;
+.hmyz-moucha { 
+    font-size: 25px !important; 
+    animation: letMouchyCSS 16s linear infinite; 
+}
+
+/* 2. 🐝 VČELA: Svižný, přímočarý průlet cik-cak skrz celé plátno */
+@keyframes letVcelyCSS {
+    0%   { left: 20%; top: -50px; transform: scale(1.1); }
+    25%  { left: 85%; top: 200px; }
+    50%  { left: 50%; top: 350px; } 
+    75%  { left: 10%; top: 160px; }
+    95%  { left: 60%; top: calc(100vh + 50px); }
+    100% { left: 20%; top: -50px; }
+}
+.hmyz-vcela { font-size: 50px !important; animation: letVcelyCSS 24s ease-in-out infinite; }
+
+/* 3. 🦟 KOMÁR: Otravné, drobné a pomalé kmitání na pravé straně stolu */
+@keyframes letKomaraCSS {
+    0%   { left: calc(100vw + 30px); top: 300px; }
+    20%  { left: 75%; top: 280px; }
+    40%  { left: 70%; top: 310px; } 
+    50%  { left: 72%; top: 290px; }
+    70%  { left: 40%; top: 150px; }
+    90%  { left: -40px; top: 110px; }
+    100% { left: calc(100vw + 30px); top: 300px; }
+}
+.hmyz-komar { font-size: 20px !important; animation: letKomaraCSS 32s linear infinite; }
+
+/* 4. 🦋 MOTÝL: Velmi líné, plynulé, elegantní kroužení a mávání */
+@keyframes letMotylaCSS {
+    0%   { left: 50%; top: -60px; transform: rotate(180deg) scale(1); } /* Přilétá shora dolů */
+    
+    /* 🔄 PRVNÍ KRUH (Kroužení na levé straně stolu) */
+    15%  { left: 20%; top: 180px; transform: rotate(230deg) scale(1.05); }
+    25%  { left: 10%; top: 260px; transform: rotate(320deg) scale(1); }
+    35%  { left: 25%; top: 300px; transform: rotate(410deg) scale(0.95); }
+    45%  { left: 35%; top: 200px; transform: rotate(500deg) scale(1); } /* Dokončen kruh */
+
+    /* 🔄 PŘELET A DRUHÝ KRUH (Kroužení v pravé horní části stolu) */
+    60%  { left: 65%; top: 140px; transform: rotate(590deg) scale(1.05); }
+    70%  { left: 85%; top: 180px; transform: rotate(680deg) scale(1); }
+    80%  { left: 75%; top: 270px; transform: rotate(770deg) scale(0.95); }
+    90%  { left: 55%; top: 220px; transform: rotate(860deg) scale(1); } /* Dokončen druhý kruh */
+
+    95%  { left: 50%; top: calc(100vh + 60px); transform: rotate(950deg) scale(1); } /* Odlétá dolů ze scény */
+    100% { left: 50%; top: -60px; transform: rotate(180deg) scale(1); }
+}
+.hmyz-motyl { 
+    font-size: 35px !important; 
+    /* 🚀 SPUSTÍME OBĚ ANIMACE NARÁZ: 
+       První ho vodí v kruzích (32s), druhá mu bleskově kmitá křídly (0.15s) po celou dobu! */
+    animation: letMotylaCSS 32s ease-in-out infinite, trepetaniKridel 0.15s linear infinite; 
+}
+
+/* 🔄 MIKRO-ANIMACE PRO NEUSTÁLÉ MÁVÁNÍ KŘÍDEL (Bleskově zužuje a rozšiřuje motýla do stran) */
+@keyframes trepetaniKridel {
+    0%   { transform: scaleX(1); }
+    50%  { transform: scaleX(0.3); } /* Křídla nahoře - motýl se zúží */
+    100% { transform: scaleX(1); }   /* Křídla dole - motýl se plně rozevře */
+}
+
+/* 5. 🪳 ŠVÁB: Klasický lezec, běhá podél mosazné lišty nahoře a křižuje stůl */
+@keyframes lezeniSvabaCSS {
+    /* 1. START: Vybíhá zdola od karet nahoru */
+    0%   { left: 8%;  top: calc(100% + 40px); transform: rotate(0deg); }
+    22%  { left: 8%;  top: 120px;            transform: rotate(0deg); } /* Dolezl k mosazné liště */
+    
+    /* 🛑 PRVNÍ OSTRÝ OBRAT: Na místě se bleskově otočí doprava */
+    24%  { left: 8%;  top: 120px;            transform: rotate(90deg); } 
+    
+    /* 🏃‍♂️ SPRINT: Utíká podél horní lišty pod statistikami */
+    52%  { left: 88%; top: 120px;            transform: rotate(90deg); } /* Prolezl celou šířku stolu */
+    
+    /* 🛑 DRUHÝ OSTRÝ OBRAT: Zastaví se v pravém rohu a otočí se šikmo dolů */
+    54%  { left: 88%; top: 120px;            transform: rotate(155deg); } 
+    
+    /* 🏃‍♂️ SPRINT: Křižuje zelené plátno stolu napříč dolů */
+    82%  { left: 35%; top: 380px;            transform: rotate(155deg); } /* Přeběhl sukno */
+    
+    /* 🛑 TŘETÍ OSTRÝ OBRAT: Otočí se směrem vlevo za okraj displeje */
+    84%  { left: 35%; top: 380px;            transform: rotate(-90deg); } 
+    
+    /* 🏃‍♂️ ÚTĚK: Zdrhne vlevo mimo obrazovku a vrací se na start */
+    94%  { left: -50px; top: 380px;          transform: rotate(-90deg); }
+    100% { left: 8%;  top: calc(100% + 40px); transform: rotate(0deg); }
+}
+
+.hmyz-svab { 
+    font-size: 60px !important; 
+    /* 🚀 KLÍČOVÁ ZMĚNA: Použijeme linear krokování (linear), 
+       aby šváb mezi body neplul jako astronaut, ale držel poctivou vojenskou přímku! */
+    animation: lezeniSvabaCSS 42s linear infinite; 
 }
         
         /* Luxusní karetní sukno s masivním borderem stolu */
@@ -851,8 +946,6 @@ html, body { overscroll-behavior: contain !important; }
 </head>
 <body>
 
-<!-- 🪰 TRVALÁ HOSPODSKÁ LÍHEŇ: Vloženo hned na první řádek pod body -->
-    <div id="hospodsky-hmyz-kont" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999999;"></div>
 
 <dialog id="vyskakovaci-okno">
     <!-- Text hlášky (plní JavaScript automaticky přes window.alert slovníček) -->
@@ -992,7 +1085,11 @@ html, body { overscroll-behavior: contain !important; }
         <div class="oblak-dymu dym-3"></div>
     </div>
 
-<div id="hospodsky-hmyz-kont" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999999 !important;"></div>
+<div class="trvaly-css-hmyz hmyz-moucha">🪰</div>
+    <div class="trvaly-css-hmyz hmyz-vcela">🐝</div>
+    <div class="trvaly-css-hmyz hmyz-komar">🦟</div>
+    <div class="trvaly-css-hmyz hmyz-motyl">🦋</div>
+    <div class="trvaly-css-hmyz hmyz-svab">🪳</div>
 
     	<div id="p-area-0" class="player-area p0"></div>
     	<div id="p-area-1" class="player-area p1"></div>
@@ -2215,7 +2312,7 @@ prehrajZvukModalu();
                             </button>
                         ` : `
                             <b style="color: var(--red, #e94560); display: block; margin-top: 8px; font-family: 'Georgia', serif; font-size: 1em; text-shadow: 1px 1px 2px black; text-align: center;">
-                                Nemáš obranu (Král, Hlava, Nula)! Musíš se vzdát.
+                                Nemáš obranu (král, hlava, 0)! Musíš se vzdát.
                             </b>
                         `}
                     </div>
@@ -3134,13 +3231,20 @@ function vyresKingChallenge(prijato) {
 function executeMove(pIdx, cardIdx) {
     if (window.hraJePauznuta) return;
 
-// 🌟 SPUŠTĚNÍ ANIMACE VYHOZENÍ: Vystřelíme kartu z ruky hráče pIdx na středový balíček
+    // 🌟 SPUŠTĚNÍ ANIMACE VYHOZENÍ: Vystřelíme kartu z ruky hráče pIdx na středový balíček
     if (typeof animujOdletKartyNaBalicek === "function") {
         animujOdletKartyNaBalicek(pIdx);
     }
 
-    // 🍺 ZDE SE LOKÁ: Upraveno tak, aby zvládalo jedno pivo i KOMBO bez duplicity!
-    if (window.beerModeAktivni !== 'ne' && players[pIdx]) {
+    // =========================================================================
+    // 🍺 ZDE SE LOKÁ: Zabezpečeno proti duplicitnímu loku po Stavaři!
+    // =========================================================================
+    // 🚀 POJISTKA: Pokud se vracíme z okna Stavaře, pití přeskočíme, pivo už ubylo dřív!
+    if (window.stavarUzLoknul) {
+        window.stavarUzLoknul = false; // Zámek hned zhasneme pro příští standardní tahy
+    } 
+    // Pokud se nevracíme ze Stavaře, pivo normálně odtéká dál (tvůj původní kód):
+    else if (window.beerModeAktivni !== 'ne' && players[pIdx]) {
         let hrac = players[pIdx];
         let lok = window.velikostLoku || 10;
         
@@ -3167,6 +3271,7 @@ function executeMove(pIdx, cardIdx) {
                 }
             }
         }
+    
 
         // 🚨 HOSPODSKÁ KONTROLA EXNUTÍ (Spustí se jen tehdy, když hrac.praveExnul === true)
         if (hrac.praveExnul) {
@@ -3398,12 +3503,10 @@ function executeMove(pIdx, cardIdx) {
 // 👑 NEPRŮSTŘELNÁ LOGIKA PRO ODEHRANÉHO KRÁLE (FIX POSLEDNÍ KARTY KOLO č. 3)
     // =========================================================================
     if (cardBase.toLowerCase() === 'král') {
-        // 🌟 NÁBOJ KRÁLE: Pokud byl na stole aktivní útok (dvojka, pětka, stopka),
-        // Král ho do sebe nekompromisně nasaje jako svůj permanentní náboj!
+        // NÁBOJ KRÁLE: Král si do sebe bezpečně nasaje případný rozjetý útok ze stolu
         if (typeof activeEffect !== 'undefined' && activeEffect !== null) {
             window.nabojLeticihoKrale = activeEffect;
         } else {
-            // Pokud pod ním nic neleželo, nese v sobě standardní volný tah
             window.nabojLeticihoKrale = null; 
         }
 
@@ -3414,6 +3517,7 @@ function executeMove(pIdx, cardIdx) {
         let kingDir = isReverseKing ? -1 : 1;
         let ziviHraciPocet = players.filter(pl => !pl.out).length;
 
+        // Vypočítáme cílového souseda, na kterého Výzva z ruky letí (Viky / Jedla...)
         let targetIdx = (pIdx + kingDir + numPlayers) % numPlayers;
         while (players[targetIdx].out || players[targetIdx].pivniStopka) {
             targetIdx = (targetIdx + kingDir + numPlayers) % numPlayers;
@@ -3422,13 +3526,31 @@ function executeMove(pIdx, cardIdx) {
 
         addToLog(`👑 <b>${players[pIdx].name}</b> zahrál Krále! Výzva letí na hráče <b>${players[targetIdx].name}</b>.`);
 
-        // KROK PRO 3 HRÁČE: Pokud odhodíte Krále jako poslední kartu, tah letí rovnou na bota!
-        if (pIdx === 0 && players[pIdx].hand.length === 0 && ziviHraciPocet > 2) {
-            window.hraJePauznuta = false;
-            currentPlayerIdx = targetIdx;
-            if (typeof updateUI === "function") updateUI();
-            setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 300);
-            return; 
+        // 🚨 AUTOMATICKÁ KONTROLA POSLEDNÍ KARTY PRO VŠECHNY (ČLOVĚK I BOT):
+        // Pokud kdokoliv vyhodil Krále jako svou poslední kartu, okamžitě mu engine automaticky lízne novou!
+        if (players[pIdx].hand.length === 0 && ziviHraciPocet > 2) {
+            
+            if (deck.length === 0) { if (typeof refreshDeck === "function") refreshDeck(); }
+            let novaKartaZBalicku = deck.pop();
+            if (novaKartaZBalicku) {
+                players[pIdx].hand.push(novaKartaZBalicku);
+                if (typeof prehrajZvukLiznuti === "function") prehrajZvukLiznuti();
+                addToLog(`🃏 <b>${players[pIdx].name}</b> odhodil svou poslední kartu Krále, takže si ihned automaticky líže 1 kartu zpět.`);
+            }
+
+            // Pokud to byl ČLOVĚK (Jedla, index 0), odemkneme semafor a plynule přepneme tah na bota bez vyskakovacího okna
+            if (pIdx === 0) {
+                window.hraJePauznuta = false;
+                currentPlayerIdx = targetIdx;
+                updateUI();
+                if (typeof updateCheatPanel === "function" && typeof cheatPanelOpen !== "undefined" && cheatPanelOpen) {
+                    updateCheatPanel();
+                }
+                setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 300);
+                return; // 🛑 Záchranná stopka executeMove u člověka – lidské okno Výzvy se pro tebe neotevře!
+            }
+            // Pokud to byl BOT, pouze překreslíme UI a necháme executeMove normálně dokončit tah
+            updateUI();
         }
     } 
     
@@ -3502,7 +3624,7 @@ function executeMove(pIdx, cardIdx) {
     // 3. SPECIÁLNÍ LOGIKA (Smajlík jako poslední karta)
     if (card === TSM) {
         if (players[pIdx].hand.length === 0) {
-            console.log(players[pIdx].name + " odhodil jako poslední kartu Smajlíka a čeká, zda přežije celé kolo.");
+            console.log(players[pIdx].name + " odhodil jako poslední kartu 😊 a čeká, zda přežije celé kolo.");
             
             const checkEffect = activeEffect ? activeEffect.replace(/^r/, '') : null;
 
@@ -3510,7 +3632,7 @@ function executeMove(pIdx, cardIdx) {
                 const conText = carouselConstraint.replace(/^r/, '');
                 let cardsToDraw = parseInt(conText) || 1;
 
-                addToLog(`<span style="color: var(--red); font-weight: bold;">⚠️ <b>${pName}</b> sice odhodil Smajlíka, ale nesplnil aktivní úkol z Kolotoče (${conText}) -> MUSÍ LÍZAT ${cardsToDraw} KARET!</span>`);
+                addToLog(`<span style="color: var(--red); font-weight: bold;">😊 <b>${pName}</b> sice odhodil Smajlíka, ale nesplnil aktivní úkol z Kolotoče (${conText}) -> MUSÍ LÍZAT ${cardsToDraw} KARET!</span>`);
                 
                 carouselConstraint = null; 
                 updateUI();
@@ -3525,7 +3647,7 @@ function executeMove(pIdx, cardIdx) {
 
             if (checkEffect !== null && checkEffect !== 'nula') {
                 if (checkEffect === 'hovno' || checkEffect === 'stop') {
-                    addToLog(`<span style="color: var(--red); font-weight: bold;">🛑 <b>${pName}</b> sice odhodil Smajlíka, ale kvůli trestu (${checkEffect}) mustí toto kolo STÁT a hru nedohrává!</span>`);
+                    addToLog(`<span style="color: var(--red); font-weight: bold;">😊 <b>${pName}</b> sice odhodil Smajlíka, ale kvůli trestu (${checkEffect}) mustí toto kolo STÁT a hru nedohrává!</span>`);
                     activeEffect = null;
                     carouselConstraint = null;
                     kingChallenge = false;
@@ -3539,7 +3661,7 @@ function executeMove(pIdx, cardIdx) {
                     return;
                 }
             } else {
-                addToLog(`⏳ <b>${pName}</b> odhodil poslední kartu Smajlíka! Pokud do příštího tahu nedostane trest, VYHRÁVÁ.`);
+                addToLog(`😊 <b>${pName}</b> odhodil poslední kartu 😊! Pokud do příštího tahu nedostane trest, VYHRÁVÁ.`);
                 updateUI();
                 finishTurn(isRevMove, false);
                 return; 
@@ -3553,45 +3675,24 @@ function executeMove(pIdx, cardIdx) {
     // 👑 DEFINITIVNÍ FIX PRO KONEC HRY KRÁLEM (Ochrana proti zaseknutým alertům)
     // =========================================================================
     if (cardBase === 'král') {
-        if (pocetKaretPredTahem === 1) {
-            if (deck.length === 0) refreshDeck();
-            players[pIdx].hand.push(deck.pop());
-            
-            // 🚀 ROZDĚLENÍ LOGIKY: Rozlišíme lidského hráče a automatické boty!
-            if (!players[pIdx].isBot) {
-                // A) Pokud končíte Králem VY (Jedla): Zobrazíme vám řádné upozornění a zmrazíme stůl
-                alert(pName + " končil Králem! Lízá si 1 kartu.");
-                
-                window.hraJePauznuta = true;
-                if (typeof hraPauznuta !== 'undefined') hraPauznuta = true;
-                
-                if (document.getElementById('king-challenge-modal')) {
-                    if (typeof prehrajZvukModalu === "function") prehrajZvukModalu();
-                    document.getElementById('king-challenge-modal').style.display = 'flex';
-                }
+        // 🌟 ODSTRANĚNA DUPLICITA: Lízání poslední karty už spravedlivě proběhlo na začátku!
+        // Žádné staré alerty ani duplicitní push(deck.pop()) pro boty se tu konat nebudou.
 
-                window.kingChallengeCard = card;
-                window.kingChallengeRev = isRevMove;
-                window.kingChallengeSm = (isSm || isL);
-                updateUI();
-                return; // ABSOLUTNÍ STOP pro lidský tah
-            } else {
-                // B) Pokud končí Králem BOT (např. Rozi): Žádné okno alert() nespouštíme!
-                // Pouze to elegantně zapíšeme do logu a necháme asynchronní vlak jet plynule dál.
-                addToLog(`<span style="color: var(--red, #e94560); font-weight: bold;">⚠️ <b>${pName}</b> se pokusil ukončit hru Králem! Lízá 1 kartu z balíčku zpět do ruky.</span>`);
-                updateUI();
-                // Kód nekončí příkazem return, takže asynchronní Královská výzva pod tímto blokem plynule dojede!
-            }
+        // Zjistíme směr letu Krále (isRevMove drží směr tahu karty)
+        let posunKrale = isRevMove ? -1 : 1;
+
+        // Vypočítáme cílového souseda, na kterého Výzva letí
+        let nextPlayerIdx = (pIdx + posunKrale + numPlayers) % numPlayers;
+        while (players[nextPlayerIdx].out || players[nextPlayerIdx].pivniStopka) {
+            nextPlayerIdx = (nextPlayerIdx + posunKrale + numPlayers) % numPlayers;
+            if (nextPlayerIdx === pIdx) break;
         }
 
-        // B) Vyhodnocení Královské výzvy (Spustí se JEN tehdy, pokud to nebyla poslední karta)
-        let nextPlayerIdx = (pIdx + (isRevMove ? -1 : 1) + numPlayers) % numPlayers;
-        while (players[nextPlayerIdx].out) {
-            nextPlayerIdx = (nextPlayerIdx + (isRevMove ? -1 : 1) + numPlayers) % numPlayers;
-        }
-        
+        // --- SCÉNÁŘ A: Pokud je další na řadě BOT (Viky / Ríša / Rozi / Venca) ---
         if (players[nextPlayerIdx].isBot) {
+            // Použijeme tvůj vyvážený 80% algoritmus pro přijetí Výzvy botem
             let botPrijme = Math.random() < 0.8;
+            
             if (botPrijme) {
                 addToLog(`🤖 <b>${players[nextPlayerIdx].name}</b> <b style="color: var(--green); font-weight: bold;">PŘIJÍMÁ</b> Královskou výzvu!`);
                 
@@ -3599,29 +3700,29 @@ function executeMove(pIdx, cardIdx) {
                 kingChallenge = true;             
                 updateUI();
                 
-                setTimeout(checkTurnStart, 250); 
-                return; 
+                setTimeout(checkTurnStart, window.rychlaSimulaceAktivni ? 1 : 250); 
+                return; // Absolutní stop pro aktuální krok, bot začíná myslet o obraně
                 
             } else {
+                // Pokud bot Výzvu odmítne, spouští se náš opravený beztrestný přelet Krále (přesune se i náboj pětky)
                 addToLog(`🤖 <b>${players[nextPlayerIdx].name}</b> <b style="color: var(--green); font-weight: bold;">ODMÍTÁ</b> Královskou výzvu (vzdává se bez postihu).`);
                 
                 kingChallenge = false; 
                 
-                let posun = isRevMove ? -1 : 1;
-                currentPlayerIdx = (nextPlayerIdx + posun + numPlayers) % numPlayers;
+                // Posuneme tah dál za tohoto bota na dalšího živého souseda
+                currentPlayerIdx = (nextPlayerIdx + posunKrale + numPlayers) % numPlayers;
                 while (players[currentPlayerIdx].out) {
-                    currentPlayerIdx = (currentPlayerIdx + posun + numPlayers) % numPlayers;
+                    currentPlayerIdx = (currentPlayerIdx + posunKrale + numPlayers) % numPlayers;
                 }
 
                 updateUI();
-                finishTurn(isRevMove, true); 
+                finishTurn(isRevMove, true); // Zavolá náš opravený Scénář B ve finishTurn
                 return; 
             }
-        } else {
-            // =========================================================================
-            // 🚀 AUTOMATICKÝ FIX PROBOUZENÍ KRÁLE: Pokud je další na řadě ČLOVĚK (Jedla)
-            // =========================================================================
-            // 🚨 NEPRŮSTŘELNÁ POJISTKA: Okno s výzvou otevřeme ČLOVĚKU pouze tehdy, pokud je stále aktivní ve hře!
+        } 
+        // --- SCÉNÁŘ B: Pokud je dalším cílem letu ČLOVĚK (Jedla) ---
+        else {
+            // Otevřeme okno s Výzvou člověku pouze tehdy, pokud je stále aktivní ve hře
             if (!players[nextPlayerIdx].out) {
                 window.hraJePauznuta = true;
                 if (typeof hraPauznuta !== 'undefined') hraPauznuta = true;
@@ -3636,16 +3737,14 @@ function executeMove(pIdx, cardIdx) {
                 updateUI(); 
                 return;     
             } else {
-                // 🔥 POKUD UŽ ČLOVĚK SKONČIL: Král přes něj beztrestně přeletí na dalšího živého bota!
+                // Pojistka: Pokud už člověk v tomto kole nežije, Král ho beztrestně přelétá dál na živé boty
                 addToLog(`✈️ Královská výzva letěla na hráče <b>${players[nextPlayerIdx].name}</b>, ale ten už v tomto kole nežije. Král ho přelétá.`);
                 
                 kingChallenge = false; 
                 
-                // Přepočítáme index a pošleme tah o dům dál na živého souseda
-                let posun = isRevMove ? -1 : 1;
-                currentPlayerIdx = (nextPlayerIdx + posun + numPlayers) % numPlayers;
+                currentPlayerIdx = (nextPlayerIdx + posunKrale + numPlayers) % numPlayers;
                 while (players[currentPlayerIdx].out) {
-                    currentPlayerIdx = (currentPlayerIdx + posun + numPlayers) % numPlayers;
+                    currentPlayerIdx = (currentPlayerIdx + posunKrale + numPlayers) % numPlayers;
                 }
 
                 updateUI();
@@ -3775,13 +3874,28 @@ function drawAction(pIdx) {
         return; 
     }
 
-    // --- 2. STANDARDNÍ TRESTY (1, 2, 3, Stop, Hovno...) ---
-    let curType = activeEffect ? activeEffect.replace(/^r/,'') : (kingChallenge ? 'Královskou výzvu' : 'volný tah');
-    addToLog(`<span style="color: var(--orange); font-weight: bold;"><i>${pName}</i> neměl obranu na ${curType} -> LÍZAL / STÁL</span>`);
+    // =========================================================================
+    // --- 2. 🌟 NEPRŮSTŘELNÉ ROZDĚLENÍ: ÚTOKY vs. VOLNÝ TAH 🌟 ---
+    // =========================================================================
+    // Kód se podívá do paměti. Pokud na stole visí útok nebo Král, spustí se první větev.
+    // Pokud je všude null/false (klidný stůl), kód neomylně skočí do větve else (volný tah).
+    if (activeEffect || kingChallenge) {
+        
+        // ⚔️ A) TATO ČÁST BĚŽÍ JEN PŘI SKUTEČNÉM ÚTOKU NEBO KRÁLOVSKÉ VÝZVĚ:
+        let curType = activeEffect ? activeEffect.replace(/^r/,'') : 'Královskou výzvu';
+        addToLog(`<span style="color: var(--orange); font-weight: bold;"><i>${pName}</i> neměl obranu na ${curType} -> LÍZAL / STÁL</span>`);
+
+    } else {
+        
+        // 🕊️ B) TATO ČÁST BĚŽÍ VÝHRADNĚ PŘI KLIDNÉM DISPLEJI (ČISTÝ VOLNÝ TAH):
+        // Hráč nic neporušil ani neprohrál obranu, jen si bere kartu z balíčku.
+        addToLog(`<span style="color: var(--vymena); font-weight: bold;"><i>${pName}</i> nevyužil volný tah a raději LÍZAL</span>`);
+    }
+    // =========================================================================
     
     let cur = activeEffect ? activeEffect.replace(/^r/, '') : null;
     
-    // Výpočet počtu karet k líznutí (pokud jde o Královskou výzvu, hráč který se vzdal nelíže sám nic, líže další)
+    // Výpočet počtu karet k líznutí
     let c = kingChallenge ? 0 : (cur==='5'?5:cur==='1'?1:cur==='2'?2:cur==='3'?3:(cur==='smajlík'?0:(cur==='král'?0:(cur==='stop'||cur==='hovno'?0:1))));
     
     if (carouselConstraint !== null && p.hand.length === 0) c = 0;
@@ -3818,26 +3932,64 @@ function drawAction(pIdx) {
     
     // --- 3. KLÍČOVÝ FIX PRO PŘESUN TRESTU V KRÁLOVSKÉ VÝZVĚ ---
     if (kingChallenge) {
-        // Zkontrolujeme, zda je zrovna otevřené okno královské výzvy
         const challengeModal = document.getElementById('king-challenge-modal');
         const modalOtevren = challengeModal && challengeModal.style.display === 'flex';
 
+        // 🌟 JEDNOTNÁ KONTROLA: Kdo Krále na stůl vyhodil? (Většinou předchozí hráč před pIdx)
+        // Najdeme majitele Krále, abychom zkontrolovali, zda nekončil s 0 kartami
+        let isRev = (typeof gameDirection !== 'undefined' && gameDirection === -1);
+        let posunZpet = isRev ? 1 : -1;
+        let puvodceKraleIdx = (pIdx + posunZpet + numPlayers) % numPlayers;
+        while (players[puvodceKraleIdx].out) {
+            puvodceKraleIdx = (puvodceKraleIdx + posunZpet + numPlayers) % numPlayers;
+        }
+
         if (!modalOtevren) {
             // =========================================================================
-            // SCÉNÁŘ A: Výzva již byla PŘIJATA, hráč nemá karty a vzdává se (L) na stole
+            // SCÉNÁŘ A: Výzva byla PŘIJATA, ale hráč (Jedla) v ní nemá kartu / vzdal se
             // =========================================================================
-            // Aktivujeme čistý přelet z finishTurn. Ten dohledá letící stopku,
-            // přeletí hráče a předá ji dál bez nuceného lízání pro aktuálního hráče.
+            addToLog(`🚫 <b>${pName}</b> nedokázal odehrát kartu v Královské výzvě a vzdává se jí.`);
+
+            // 🚨 SOUDRŽNÝ DUELOVÝ / TURNAJOVÝ FIX:
+            // Pokud se hráč vzdal Výzvy a původce Krále (Viky) má v ruce 0 karet,
+            // hra ho okamžitě potrestá automatickým líznutím karty zpět do ruky!
+            if (players[puvodceKraleIdx].hand.length === 0) {
+                if (deck.length === 0) refreshDeck();
+                let drawnCard = deck.pop();
+                if (drawnCard) {
+                    players[puvodceKraleIdx].hand.push(drawnCard);
+                    if (typeof prehrajZvukLiznuti === "function") prehrajZvukLiznuti();
+                    addToLog(`<span style="color: var(--red); font-weight: bold;">⚠️ <b>${players[puvodceKraleIdx].name}</b> se pokusil ukončit hru Králem! Protože soupeř Výzvu neustál, původce lízá 1 kartu zpět.</span>`);
+                }
+            }
+
+            kingChallenge = false;
+            activeEffect = null;
+
             closeModals(); 
             updateUI();
             if (cheatPanelOpen) updateCheatPanel();
             
-            finishTurn(gameDirection === -1, false);
+            setTimeout(() => { finishTurn(gameDirection === -1, false); }, 150);
             return; 
+
         } else {
             // =========================================================================
-            // SCÉNÁŘ B: Výzva se odmítá ROVNOU v modálním okně při vyhodnocení Krále
+            // SCÉNÁŘ B: Výzva se odmítá ROVNOU v modálním okně (Hráč klikl na Vzdat)
             // =========================================================================
+            addToLog(`🚫 <b>${pName}</b> odmítá Královskou výzvu rovnou v okně.`);
+
+            // 🚨 STEJNÝ SOUDRŽNÝ FIX PRO SCONČENÍ KRÁLEM:
+            if (players[puvodceKraleIdx].hand.length === 0) {
+                if (deck.length === 0) refreshDeck();
+                let drawnCard = deck.pop();
+                if (drawnCard) {
+                    players[puvodceKraleIdx].hand.push(drawnCard);
+                    if (typeof prehrajZvukLiznuti === "function") prehrajZvukLiznuti();
+                    addToLog(`<span style="color: var(--red); font-weight: bold;">⚠️ <b>${players[puvodceKraleIdx].name}</b> se pokusil ukončit hru Králem! Soupeř Výzvu odmítl, původce lízá 1 kartu zpět.</span>`);
+                }
+            }
+
             kingChallenge = false; 
             activeEffect = null;
 
@@ -3849,7 +4001,6 @@ function drawAction(pIdx) {
             
             addToLog(`⚠️ Trest z Královské výzvy se přesouvá na hráče: <b>${players[nextPlayerIdx].name}</b>!`);
             
-            // Tento další hráč si líže 1 kartu
             if (deck.length === 0) refreshDeck();
             let drawnCard = deck.pop();
             if (drawnCard) {
@@ -3857,12 +4008,10 @@ function drawAction(pIdx) {
                 prehrajZvukLiznuti();
             }
             
-            // Kompletní ukončení tahu pro aktuálního hráče, který se vzdal
             closeModals(); 
             updateUI();
             if (cheatPanelOpen) updateCheatPanel();
             
-            // Ukončíme tah a posuneme hru dál (na řadě bude správný další hráč)
             setTimeout(() => { finishTurn(gameDirection === -1, false); }, 150);
             return; 
         }
@@ -4590,7 +4739,7 @@ if (['stop'].includes(clean)) return `Braň se: ${mini(eff, clean==='stop'?'✖'
                         </button>
                     ` : `
                         <b style="color: var(--white: #ffffff); display: block; margin-top: 10px; font-family: 'Georgia', serif; font-size: 1.05em; text-shadow: 1px 1px 2px black; max-width: 320px;">
-                            ✖ Nemáš kartu na obranu první linie (Král, Hlava, Nula)! Musíš výzvu odmítnout.
+                            ✖ Nemáš kartu na obranu první linie (král, hlava, 0)! Musíš výzvu odmítnout.
                         </b>
                     `}
                 ` : `
@@ -5617,11 +5766,11 @@ function stavarHracZvolilKartu(pIdx, zvolenaKarta) {
 
     // =========================================================================
     // 🚀 SKUTEČNÝ NEPRŮSTŘELNÝ ROZJEZD MOTORU HRY:
-    // Místo finishTurn zavoláme znovu executeMove se zachovanými indexy!
-    // Engine díky tomu kartu normálně vyhodí, smaže z ruky a uplatní veškerá
-    // vaše původní pravidla pro otáčení směrů u černých čísel i šipek.
+    // 🌟 Přidáme zámek, který spodní funkci executeMove zakáže duplicitní lokání!
     // =========================================================================
     if (origCardIdx !== undefined && origCardIdx !== null && players[origPIdx]) {
+        window.stavarUzLoknul = true; // Flag pro přeskočení piva při znovuvzplanutí motoru
+        
         setTimeout(() => {
             if (typeof executeMove === "function") {
                 executeMove(origPIdx, origCardIdx);
@@ -5629,7 +5778,6 @@ function stavarHracZvolilKartu(pIdx, zvolenaKarta) {
         }, window.rychlaSimulaceAktivni ? 1 : 150);
     }
 }
-
 // Funkce pro automatický výběr bota (Zůstává beze změny, perfektně pasivní)
 function stavarBotVybiraKartu(pIdx) {
     // 1. Najdeme všechny karty, které ještě ve fondu mají kusy > 0
@@ -5731,88 +5879,6 @@ const DRUHY_HMYZU = [
     { symbol: '🪳', velikost: '60px', rychlost: 600, posedavost: 1500, sanceNaSednuti: 0.8, typ: 'lezec' }
 ];
 
-function vypustHospodskyHmyz() {
-    // 🌟 ČERSTVÉ VYHLEDÁNÍ: Kontejner zaměříme pokaždé znovu, přímo z aktuálního HTML stolu!
-    const kont = document.getElementById('hospodsky-hmyz-kont');
-    if (!kont) return; 
-
-    const druh = DRUHY_HMYZU[Math.floor(Math.random() * DRUHY_HMYZU.length)];
-    const potvůrka = document.createElement('div');
-    
-    potvůrka.className = 'hospodska-moucha' + (druh.typ === 'letavec' ? ' moucha-bzuci' : '');
-    potvůrka.innerHTML = druh.symbol;
-    potvůrka.style.fontSize = druh.velikost;
-    potvůrka.style.transition = `left ${druh.rychlost}ms ease-in-out, top ${druh.rychlost}ms ease-in-out, transform 0.2s ease-in-out`;
-    
-    // Startovní pozice zvenčí displeje relativně k oknu prohlížeče
-    let startZleva = Math.random() < 0.5;
-    potvůrka.style.left = startZleva ? '-40px' : (window.innerWidth + 40) + 'px';
-    potvůrka.style.top = Math.random() * (window.innerHeight * 0.4) + 100 + 'px';
-    
-    kont.appendChild(potvůrka);
-
-    let pocetPreletu = Math.floor(Math.random() * 4) + 4; 
-
-    function letNaDalsiMisto() {
-        // 🌟 DŮLEŽITÁ POJISTKA PRO 2. KOLO: 
-        // V každém kroku letu zkontrolujeme čerstvý živý kontejner z obrazovky, ne ten starý z paměti!
-        const zivyKont = document.getElementById('hospodsky-hmyz-kont');
-        if (!zivyKont || !zivyKont.contains(potvůrka)) return;
-
-        if (pocetPreletu <= 0) {
-            potvůrka.style.left = (Math.random() < 0.5 ? -60 : window.innerWidth + 60) + 'px';
-            setTimeout(() => { potvůrka.remove(); }, druh.rychlost + 100);
-            return;
-        }
-
-        pocetPreletu--;
-        
-        // Výpočet souřadnic čistě z rozměrů okna displeje (window), které nikdy nejsou nula
-        let cilLeft = Math.random() * (window.innerWidth - 120) + 60;
-        
-        let volnyVrsokStolu = window.innerHeight - 340; 
-        if (volnyVrsokStolu < 150) volnyVrsokStolu = 200; 
-        
-        let cilTop = Math.random() * (volnyVrsokStolu - 90) + 90;
-
-        let aktLeft = parseFloat(potvůrka.style.left) || 0;
-        let aktTop = parseFloat(potvůrka.style.top) || 0;
-        
-        if (druh.typ === 'lezec') {
-            let úhel = Math.atan2(cilTop - aktTop, cilLeft - aktLeft) * (180 / Math.PI);
-            potvůrka.style.transform = `rotate(${úhel + 90}deg)`;
-        } else {
-            potvůrka.style.transform = (cilLeft < aktLeft) ? 'scaleX(-1)' : 'scaleX(1)';
-        }
-        
-        potvůrka.style.left = cilLeft + 'px';
-        potvůrka.style.top = cilTop + 'px';
-
-        let casNaPosedavani = Math.random() * druh.posedavost + (druh.posedavost / 2); 
-        setTimeout(letNaDalsiMisto, druh.rychlost + casNaPosedavani);
-    }
-    setTimeout(letNaDalsiMisto, 100);
-}
-
-function SpustHmyziSmycku() {
-    let nahodnyCas = Math.random() * 5000 + 4000; 
-    
-    setTimeout(() => {
-        // 🌟 TADY JE TEN REVOLUČNÍ KROK: Vyhledáme kontejner natvrdo z živého DOMu pokaždé znovu!
-        const zivyKont = document.getElementById('hospodsky-hmyz-kont');
-        if (zivyKont) {
-            let aktualniBrouci = zivyKont.querySelectorAll('.hospodska-moucha').length;
-            if (aktualniBrouci < 4) {
-                vypustHospodskyHmyz();
-            }
-        }
-        // Smyčka bezpečně pokračuje dál do dalšího kola
-        SpustHmyziSmycku();
-    }, nahodnyCas);
-}
-
-// První start po načtení stránky
-SpustHmyziSmycku();
 
 // 🃏 VIZUÁLNÍ ANIMACE LÉTACÍ KARTY Z BALÍČKU K HRÁČI 🃏
 // =========================================================================
