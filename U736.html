@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://googleapis.com">
 <link rel="preconnect" href="https://gstatic.com" crossorigin>
 <link href="https://googleapis.com/css2?family=Cinzel:wght@400;700;800&display=swap" rel="stylesheet">
+
+<!-- 🌐 SÍŤOVÝ KABEL: Propojení pro online hru a synchronizaci Cheat Panelu -->
+    <script src="https://unpkg.com"></script>
+
     <style>
 html, body { overscroll-behavior: contain !important; }
         /* =========================================================================
@@ -1055,6 +1059,14 @@ html, body { overscroll-behavior: contain !important; }
                 <option value="modern" class="prekladatelny" data-cs="Ilustrovaný🎨" data-en="Illustrated🎨">Ilustrovaný🎨</option>
             </select>
         </div>
+<div style="margin-top: 15px;">
+  <label><input type="radio" name="game-mode" value="offline" checked onchange="prepniRezim(this.value)"> 🏠 Solo s boty (Offline)</label>
+  <label><input type="radio" name="game-mode" value="online" onchange="prepniRezim(this.value)"> 🌐 Proti kamarádům (Online)</label>
+</div>
+<div id="online-room-setup" style="display: none; margin-top: 10px;">
+  <input type="text" id="room-id-input" placeholder="Kód stolu (např. 728)">
+  <input type="text" id="admin-password" placeholder="Admin heslo (pro cheat panel)">
+</div>
     </div>
 </div>
 
@@ -1383,6 +1395,167 @@ const ufoSlovnicekLogu = {
 // Bezpečné vložení hlášek s barvami (bez rizikových uvozovek uvnitř textu)
 ufoSlovnicekLogu["Hra byla <span style='color: var(--red, #e94560); font-weight: bold;'>PAUZNUTA</span>."] = "The game was <span style='color: var(--red, #e94560); font-weight: bold;'>PAUSED</span>.";
 ufoSlovnicekLogu["Hra <span style='color: var(--green, #28a745); font-weight: bold;'>POKRAČUJE</span>."] = "The game <span style='color: var(--green, #28a745); font-weight: bold;'>CONTINUES</span>.";
+
+// --- GLOBÁLNÍ PROMĚNNÉ PRO ONLINE REŽIM ---
+let isOnlineRezim = false;
+
+function prepniRezim(hodnota) {
+    isOnlineRezim = (hodnota === 'online');
+    
+    // Zobrazení nebo skrytí políček pro kód stolu a heslo
+    const panel = document.getElementById('online-room-setup');
+    if (panel) {
+        panel.style.display = isOnlineRezim ? 'block' : 'none';
+    }
+}
+
+// =========================================================================
+// 🌐 NOVÉ FUNKCE PRO ONLINE TURNAJ (Vytvořeno na zelené louce)
+// =========================================================================
+
+async function pripojSeOnline(roomId, adminPass, nastaveniTurnaje) {
+    try {
+        addToLog("🌐 Připojuji se k online herní místnosti...");
+
+        // 1. Inicializace Playroomu přes internet
+        await Playroom.insertCoin({
+            gameId: "ufokarty-728-jedla", 
+            discord: false,
+            roomCode: roomId 
+        });
+
+        addToLog("✅ Úspěšně připojeno k online stolu!");
+        
+        let mujHrac = Playroom.myPlayer();
+        mujHrac.setState("jmeno", "Hráč 1");
+        
+        let isAdmin = (adminPass === "mojeTajneHeslo728");
+        mujHrac.setState("isAdmin", isAdmin);
+
+        if (isAdmin) {
+            addToLog("👑 Přihlášen jako ADMIN. Panel záchodových sviňáren aktivován.");
+        }
+
+        if (Playroom.isHost()) {
+            Playroom.setGameState("nastaveni", nastaveniTurnaje);
+            Playroom.setGameState("naRade", 0);
+            addToLog("🎲 Jsi hostitel stolu. Čekám na synchronizaci balíčku...");
+            initGame(); 
+        }
+
+        // =========================================================================
+        // 📡 BEZPEČNÉ SÍŤOVÉ PŘIJÍMAČE (Aktivují se výhradně v ONLINE režimu)
+        // =========================================================================
+        
+        Playroom.onRpc("provedOnlineLiznuti", (data, hracKteryLizal) => {
+            if (Playroom.isHost()) {
+                let spolecnyBalicek = Playroom.getGameState("spolechnyBalicek") || [];
+                if (spolecnyBalicek.length === 0) return;
+
+                let liznutaKarta = spolecnyBalicek.pop();
+                let onlineKartyHrace = hracKteryLizal.getState("mojeKarty") || [];
+                onlineKartyHrace.push(liznutaKarta);
+                hracKteryLizal.setState("mojeKarty", onlineKartyHrace);
+
+                Playroom.setGameState("spolechnyBalicek", spolecnyBalicek);
+
+                Playroom.rpc("provedVizuálníLiznutiVHtml", {
+                    hracId: hracKteryLizal.id,
+                    karta: liznutaKarta
+                });
+            }
+        });
+
+        Playroom.onRpc("provedVizuálníLiznutiVHtml", (data, hracKteryLizal) => {
+            let mujPlayroomHrac = Playroom.myPlayer();
+            if (!mujPlayroomHrac || !hracKteryLizal) return;
+
+            let jeToMojeLiznuti = hracKteryLizal.id === mujPlayroomHrac.id;
+            let spravnyIndexHrace = jeToMojeLiznuti ? 0 : UrciIndexOstatnichHracu(hracKteryLizal.id);
+
+            let zalohaOnline = isOnlineRezim;
+            isOnlineRezim = false; // Dočasný offline režim pro vnitřní logiku drawAction
+
+            if (jeToMojeLiznuti) {
+                if (typeof window.playersHand !== 'undefined') window.playersHand.push(data.karta);
+            } else {
+                if (typeof players !== 'undefined' && players[spravnyIndexHrace]) {
+                    players[spravnyIndexHrace].hand.push(data.karta);
+                }
+            }
+
+            // Spuštění vaší původní logiky turnaje
+            drawAction(spravnyIndexHrace);
+
+            isOnlineRezim = zalohaOnline; 
+        });
+
+        // =========================================================================
+        // 4. Spustíme neustálé sledování stavu hry
+        sledujStavWeboveHry();
+
+    } catch (chyba) {
+        alert("Chyba při připojování k online hře: " + chyba);
+    }
+}
+
+let hraUzBylaVykreslena = false; // Pojistka proti neustálému překreslování stolu
+
+function sledujStavWeboveHry() {
+    setInterval(() => {
+        let mujHrac = Playroom.myPlayer();
+        if (!mujHrac) return;
+        
+        // --- 🎭 LOGIKA PRO VÁŠ PANEL SVIŇÁREN (CHEAT PANEL) ---
+        if (mujHrac.getState("isAdmin") === true) {
+            let vsichniOnlineHraci = Playroom.getPlayers();
+            let dataProCheat = [];
+
+            vsichniOnlineHraci.forEach(hrac => {
+                dataProCheat.push({
+                    jmeno: hrac.getState("jmeno") || "Hráč",
+                    karty: hrac.getState("mojeKarty") || [] // Vytáhneme jejich reálné karty z webu
+                });
+            });
+
+            // Předáme data vašemu Panelu záchodových sviňáren (přizpůsobte název vaší kreslící funkce)
+            if (typeof aktualizovatPanelSvinaren === "function") {
+                aktualizovatPanelSvinaren(dataProCheat);
+            }
+        }
+
+        // --- 🏁 SYNCHRONIZACE STARTU GRAFIKY ---
+        let jeHraPripravena = Playroom.getGameState("hraPripravena");
+
+        if (jeHraPripravena && !hraUzBylaVykreslena) {
+            console.log("📡 Síť hlásí: Balíček je namíchán! Stahuji karty...");
+
+            // Stáhnu si z webu MOJE karty, které mi hostitel přidělil
+            window.playersHand = mujHrac.getState("mojeKarty") || [];
+
+            // Stáhnu si kartu, která má ležet na stole
+            let kartaNaStole = Playroom.getGameState("kartaNaStole");
+            
+            // Vložíme kartu na stůl (přizpůsobte název vaší proměnné pro odhazovací balíček)
+            if (typeof window.discardPile !== 'undefined') {
+                window.discardPile = [kartaNaStole];
+            }
+
+            // Spustíme vaše originální vykreslení karet na obrazovku
+            if (typeof renderPlayerHand === "function") renderPlayerHand();
+            if (typeof renderTable === "function") renderTable();
+            
+            addToLog("🛸 <b>Online hra zahájena!</b> Vítejte u stolu.");
+            
+            document.getElementById('welcome-screen').style.display = 'none';
+            if (document.getElementById('game-container')) document.getElementById('game-container').style.display = 'block';
+
+            hraUzBylaVykreslena = true; // Aktivujeme pojistku, ať se to nespouští znovu
+        }
+
+    }, 500); // Kontrola probíhá 2x za vteřinu
+}
+
 
 
 // =========================================================================
@@ -1742,23 +1915,41 @@ function startGameWithPlayers(chosenCount) {
     // Načteme zvolenou velikost loku
     const gulpSelect = document.getElementById('beer-gulp-select');
     window.velikostLoku = gulpSelect ? parseInt(gulpSelect.value) : 10;
+
+    // 🌐 NOVÁ KONTROLA PRO ONLINE REŽIM
+    if (isOnlineRezim) {
+        const roomId = document.getElementById('room-id-input').value.trim();
+        const adminPass = document.getElementById('admin-password').value.trim();
+
+        if (!roomId) {
+            alert("Zadejte prosím KÓD STOLU pro online hru!");
+            return; // Zastavíme spuštění lokální hry
+        }
+
+        // Zavoláme funkci pro připojení k serveru a předáme mu nastavení stolu
+        pripojSeOnline(roomId, adminPass, {
+            numPlayers: numPlayers,
+            maxTournamentPoints: maxTournamentPoints,
+            startingCardsCount: startingCardsCount,
+            beerModeAktivni: window.beerModeAktivni,
+            velikostLoku: window.velikostLoku
+        });
+        return; // Důležité: Ukončíme funkci, zbytek se spustí až přes server!
+    }
     
-     // 🚀 TADY JE TEN FIX: Pěkný, přehledný výpis režimu a loku hned na startu turnaje!
+    // ====================================================================
+    // ZDE ZAČÍNÁ PŮVODNÍ OFFLINE LOGIKA (Spustí se jen když isOnlineRezim = false)
+    // ====================================================================
     const rezimVelkym = window.beerModeAktivni.toUpperCase();
     addToLog(`🎮 <b>Turnaj zahájen!</b> Hrajeme v ${numPlayers} lidech do ${maxTournamentPoints} bodů. Rozdává se ${startingCardsCount} karet.`);
     
-    // 💾 ULOŽENÍ 1. ČÁSTI: Čistý text o hráčích, bodech a kartách bez HTML značek
     window.nastaveniTurnajeText1 = `🎮 Turnaj zahájen! Hrajeme v ${numPlayers} lidech do ${maxTournamentPoints} bodů. Rozdává se ${startingCardsCount} karet.`;
     
     if (window.beerModeAktivni !== 'ne') {
         addToLog(`🍺 <b>PIVNÍ REŽIM:</b> <span style="color: #ff9900; font-weight: bold;">${rezimVelkym}</span> | 💧 <b>VELIKOST LOKU:</b> <span style="color: #ff9900; font-weight: bold;">${window.velikostLoku} %</span>`);
-        
-        // 💾 ULOŽENÍ 2. ČÁSTI (Při zapnutém pivu): Čistý text bez HTML tagů
         window.nastaveniTurnajeText2 = `🍺 PIVNÍ REŽIM: ${rezimVelkym} | 💧 VELIKOST LOKU: ${window.velikostLoku} %`;
     } else {
         addToLog(`🛑 <b>PIVNÍ REŽIM:</b> Vypnut (Klasická hra bez piva).`);
-        
-        // 💾 ULOŽENÍ 2. ČÁSTI (Bez piva):
         window.nastaveniTurnajeText2 = `🛑 PIVNÍ REŽIM: Vypnut (Klasická hra bez piva).`;
     }
     
@@ -1944,6 +2135,48 @@ function initGame() {
     // 🪰 PLÁCAČKA NA ZAMRZLÝ HMYZ: Okamžitě vyčistíme stůl
     document.querySelectorAll('.hospodska-moucha').forEach(el => el.remove()); 
     // =========================================================================
+
+// 🌐 KONTROLA PRO ONLINE REŽIM
+    if (isOnlineRezim) {
+        // Pokud jsme hostitel stolu (ten první), namícháme balíček pro všechny
+        if (Playroom.isHost()) {
+            console.log("🎲 Generuji a dokonale míchám balíček pro online hru...");
+            
+            // 1. Zde se vytvoří vaše pole s kartami (předpokládám, že se jmenuje 'deck')
+            // ... (váš kód, který naplní pole deck kartami) ...
+
+            // 2. VAŠE DOKONALÉ MÍCHÁNÍ BALÍČKU (Fisher-Yates) - zůstává přesně vaše!
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = deck[i];
+                deck[i] = deck[j];
+                deck[j] = temp;
+            }
+            
+            // 3. Uložíme tento váš dokonale zamíchaný balíček do cloudu pro všechny u stolu
+            Playroom.setGameState("spolechnyBalicek", deck);
+            
+            // 4. Rozdáme karty jednotlivým hráčům přes cloud z tohoto vašeho balíčku
+            let hraci = Playroom.getPlayers();
+            hraci.forEach((hrac) => {
+                let rukaHrace = [];
+                for (let i = 0; i < window.startingCardsCount; i++) {
+                    rukaHrace.push(deck.pop()); // Bereme karty z vašeho zamíchaného balíčku
+                }
+                hrac.setState("mojeKarty", rukaHrace);
+            });
+
+            // 5. Otočíme první kartu na stůl do odhazovacího balíčku
+            let prvniKartaNaStole = deck.pop();
+            Playroom.setGameState("kartaNaStole", prvniKartaNaStole);
+            Playroom.setGameState("spolechnyBalicek", deck); // Uložíme zbytek balíčku na web
+            
+            // 6. Vyhlásíme do sítě, že hra je připravena
+            Playroom.setGameState("hraPripravena", true);
+        }
+        return; // 🛑 Zastavíme lokální offline spuštění hry
+    }
+
 
     // Nyní teprve bezpečně pokračuje vaše kontrola herních kol a kontejnerů:
     if (typeof currentGameRound !== 'undefined' && currentGameRound > 1) {
@@ -3848,6 +4081,33 @@ function drawAction(pIdx) {
     }
     const pName = players[pIdx].name;
     const p = players[pIdx];
+
+    // =========================================================================
+    // 🌐 NOVÁ KONTROLA PRO ONLINE REŽIM (Vložit přesně sem!)
+    // =========================================================================
+    if (isOnlineRezim) {
+        // Zjistíme z cloudu, kdo je právě na řadě
+        let naRadeOnline = Playroom.getGameState("naRade");
+
+        // Pokud se pokouší lízat živý hráč u PC (pIdx 0), ale v cloudu hraje někdo jiný:
+        if (pIdx === 0 && naRadeOnline !== 0) {
+            addToLog("🚫 <b>Počkej!</b> Nemůžeš lízat karty, zrovna hraje jiný hráč.");
+            return; // Zablokujeme kliknutí
+        }
+
+        // Pokud líže živý hráč (pIdx 0) ve svém platném tahu, nahlásíme to do cloudu:
+        if (pIdx === 0) {
+            addToLog("📡 Lížu si kartu ze společného online balíčku...");
+            
+            // Požádáme síť (RPC), aby nám bezpečně vydala kartu ze společného osudí
+            Playroom.rpc("provedOnlineLiznuti", {
+                indexHrace: pIdx
+            });
+            
+            return; // 🛑 DŮLEŽITÉ: Zastavíme zbytek této obří lokální funkce! Čekáme na web.
+        }
+    }
+    // =========================================================================
     
     // --- 1. PŘEDNOSTNÍ OPRAVA PRO NESPLNĚNÝ KOLOTOČ ---
     if (carouselConstraint !== null && (!activeEffect || activeEffect === null)) {
